@@ -118,9 +118,23 @@ int bin_to_2complement(){
 
 //2ª linha - converter a partir do binário da primeira linha
 
+//passa por cada dígito, multiplicando pela potência e somando
+void hex_to_dec(char *hex, int tam){
+    int total = 0; 
+    int x; 
 
-int hex_to_dec(){
-
+    for(int i = 0; i < tam; i++){
+      x = hex[i];
+      //se for numero
+      if(48 <= x <= 57){
+        total += (hex[i] -48) * (16 ** i);
+      }
+      //se for letra
+      if (65 <= x <= 71){
+          total +=  (hex[i] - 50) * (16 ** i);
+      }
+    }
+    printf("%d", total);
 }
 
 //3ª linha - coneverte a patir do binário da primeira linha para hex

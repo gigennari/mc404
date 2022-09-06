@@ -97,12 +97,12 @@ void hex_to_bin(char *hex, int tam){
     x = hex[i];
     printf("num é %d\n", x);
     //se for numero
-    if(48 <= x <= 57){
+    if(48 <= x && x <= 57){
         printf("Reconheceu numero");
         dec_to_bin(hex[i] - 48, 4);
     }
     //se for letra
-    if (65 <= x <= 71){
+    if (65 <= x && x <= 71){
         printf("Reconheceu letra");
         dec_to_bin(hex[i] - 47, 4);
     }
@@ -126,11 +126,11 @@ void hex_to_dec(char *hex, int tam){
     for(int i = 0; i < tam; i++){
       x = hex[i];
       //se for numero
-      if(48 <= x <= 57){
+      if(48 <= x && x <= 57){
         total += (hex[i] -48) * (16 ** i);
       }
       //se for letra
-      if (65 <= x <= 71){
+      if (65 <= x && x <= 71){
           total +=  (hex[i] - 50) * (16 ** i);
       }
     }

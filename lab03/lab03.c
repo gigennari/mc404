@@ -20,6 +20,7 @@ Saída: seguintes informações seguidas de quebras de linha:
 
 
 */
+#include <stdlib.h>
 
 int read(int __fd, const void *__buf, int __n){
   int bytes;
@@ -51,11 +52,39 @@ void write(int __fd, const void *__buf, int __n){
 }
 
 //1ª linha:
-int dec_to_bin(){
 
+//divisões sucessivas por 2
+void dec_to_bin(int dec, int n){
+  char bin[n];
+  int i = 0;
+  
+  while( dec != 1 ){
+    int atual = dec % 2; 
+    char c =  atual + '0';
+    bin[i] = c;
+    i++;
+    dec = dec / 2; 
+  };
+  
+  if (dec % 2 == 1){
+      bin[n-1] = '1';
+  }
+  else{
+      bin[n-1] ='0';
+  }
+  
+  char vetor_invertido[n];
+  
+  printf("0b%s", vetor_invertido);
+  for(int j = n; j >= 0; j--){
+    printf("%c", bin[j]);
+  };
+   
+   printf("\n");
 }
 
-int hex_to_bin(){
+//expandir cada dígito hexa em quatro dígitos binários
+void hex_to_bin(int hex){
 
 }
 

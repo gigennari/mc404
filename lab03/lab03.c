@@ -55,6 +55,17 @@ void write(int __fd, const void *__buf, int __n){
 
 //divisões sucessivas por 2
 void dec_to_bin(int dec, int n){
+  
+  if(dec == 4){
+      printf("0");
+   }
+   if(dec == 3 || dec == 2){
+       printf("00");
+   }
+   if(dec == 1){
+       printf("000");
+   }
+  
   char bin[n];
   int i = 0;
   
@@ -72,20 +83,31 @@ void dec_to_bin(int dec, int n){
   else{
       bin[n-1] ='0';
   }
-  
-  char vetor_invertido[n];
-  
-  printf("0b%s", vetor_invertido);
+
   for(int j = n; j >= 0; j--){
     printf("%c", bin[j]);
   };
-   
-   printf("\n");
 }
 
-//expandir cada dígito hexa em quatro dígitos binários
-void hex_to_bin(int hex){
-
+//expandir cada dígito hexa em quatro dígitos binários, tam é a qtde de dígitos no numero hex 
+void hex_to_bin(char *hex, int tam){
+  int x;
+  for (int i = 0; i < tam; i++){
+    //converter cada dígito para binário 
+    x = hex[i];
+    printf("num é %d\n", x);
+    //se for numero
+    if(48 <= x <= 57){
+        printf("Reconheceu numero");
+        dec_to_bin(hex[i] - 48, 4);
+    }
+    //se for letra
+    if (65 <= x <= 71){
+        printf("Reconheceu letra");
+        dec_to_bin(hex[i] - 47, 4);
+    }
+  }
+  
 }
 
 int bin_to_2complement(){

@@ -137,9 +137,69 @@ void hex_to_dec(char *hex, int tam){
 }
 
 //3ª linha - coneverte a patir do binário da primeira linha para hex
-int bin_to_hex(){
+//Compactar cada quatro dígitos binários em um único dígito hexa segundo seu valor
+void bin_to_hex(char *bin, int tam){
+  //num de iterações 
+  int iter = tam / 4; 
+  //residual 
+  int res = tam % 4;
+  int pos = iter;
+  
+  //cálculo do resto da frente 
+    if(res != 0){
+       int total = 0;
+    
+        if(res == 3){
+            total += (bin[0] - 48) * 4;
+            total += (bin[1] - 48) * 2;
+            total += (bin[2] - 48) * 1;
+        }
+        
+        if(res == 2){
+            total += (bin[0] - 48) * 2;
+            total += (bin[1] - 48) * 1;
+        }
+        
+        if(res == 1){
+            total += (bin[0] - 48) * 1;
+        } 
+        //impressao
+        if(total <= 9){
+        printf("%d", total);
+        }
+        else{
+            char c = total + '7';
+            printf("%c", c);
+        }
+    }
+    
+    int hex_inv[iter];
+  
+  //de trás pra frente
+  for(int i = 0; i < iter; i++){
+      int total = 0;
+      total += (bin[(tam-1) - (4*i)] - 48) * 1;
+      total += (bin[(tam-2) - (4*i)] - 48) * 2;
+      total += (bin[(tam-3) - (4*i)] - 48) * 4;
+      total += (bin[(tam-4) - (4*i)] - 48) * 8;
+      
 
-}
+      hex_inv[pos] = total;
+      pos--;
+  }
+
+  //impressao
+  for(int j = iter; j > 0; j--){
+    
+        if(hex_inv[j] <= 9){
+            printf("%d", hex_inv[j]);
+        }
+        else{
+            char c = hex_inv[j] + '7';
+            printf("%c", c);
+        }
+  }
+};
 
 //4ª linha  - inverter endianess e recalcular hex to dec ou só mandar dec 
 

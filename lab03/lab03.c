@@ -109,11 +109,37 @@ void hex_to_bin(char *hex, int tam){
   
 }
 
-int bin_to_2complement(){
+void bin_to_2complement(char *bin, int tam){
     
+    //se houver apenas zeros, basta concatenar 1 na frente 
+    int i, x; 
+    for(i = tam-1; i >= 0; i--){
+      if(bin[i] == '1'){
+          break;
+      }
+    }
+
+    //se i chegar até uma posição antes do início do vetor, só tem zero
+    if(i == -1){
+      printf("1%s", bin);
+    }
+    else{
+        for (int j = 0; j < i; j++){
+            x = bin[j];
+            if (x == 49){
+                  printf("0");
+            }
+            else{
+                  printf("1");
+            }
+        }
+        
+        for (int k = i; k < tam; k++){
+            printf("%c", bin[k]);
+        }
+    }
+      
 }
-
-
 
 //2ª linha - converter a partir do binário da primeira linha
 

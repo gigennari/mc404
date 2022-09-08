@@ -54,7 +54,7 @@ void write(int __fd, const void *__buf, int __n){
 
 //passa por cada dígito, multiplicando pela potência e somando
 //recebe sem Ox.... tam não contabiliza 0x
-int hex_to_dec(char *hex, char *destino, int tam){
+int hex_to_dec(char *hex, int tam){
     int total = 0, p = 1, x;
 
     for(int i = tam-1; i >= 0; i--){
@@ -69,8 +69,6 @@ int hex_to_dec(char *hex, char *destino, int tam){
       }
       p = p * 16;
     }
-
-    //passar total em decimal para vetor de char e devolver tamanho
     
     return total;
 }
@@ -86,8 +84,8 @@ int char_dec_to_int_dec(char *dec, int tam){
 }
 
 
-int int_dec_to_char_dec(int dec, char* v_decimal) {
-    char* ptr = v_decimal, *ptr1 = v_decimal, tmp_char;
+int int_dec_to_char_dec(int dec, char* destino) {
+    char* ptr = destino, *ptr1 = destino, tmp_char;
     int tmp, n=0;
 
     do {
@@ -143,25 +141,6 @@ int dec_to_bin(int dec, char *binario){
     binario[i] = aux[j];
   };
   return n;
-}
-
-//expandir cada dígito hexa em quatro dígitos binários, tam é a qtde de dígitos no numero hex 
-void hex_to_bin(char *hex, int tam, char *binario){
-  int x;
-
-  for (int i = 0; i < tam; i++){
-    //converter cada dígito para binário 
-    x = hex[i];
-    //se for numero
-    if(48 <= x && x <= 57){
-        dec_to_bin(x - 48, 4);
-    }
-    //se for letra
-    if (65 <= x && x <= 71){
-        dec_to_bin(x - 47, 4);
-    }
-  }
-  
 }
 
 void bin_to_2complement(char *bin, int tam){
@@ -264,7 +243,7 @@ void bin_to_hex(char *bin, int tam){
 
 int inverte_endian(char *str, char *endian_trocado, int tam){
  
-    int tam_endian_trocado
+    int tam_endian_trocado;
     char aux[50];
     if(tam < 8){
         for(int i = 0; i < 8-tam; i++){
@@ -288,7 +267,7 @@ int main()
   int n = read(0, str, 20);
   write(1, str, n);
 
-  int tam_binario, tam_dec, tam_hex, tam_endian_decimal, int_decimal;
+  int tam_bin, tam_dec, tam_hex, tam_endian_decimal, int_decimal;
   char v_binario[MAX];
   char v_decimal[MAX];
   char v_hex[MAX];
@@ -315,25 +294,26 @@ int main()
       valor[i] = str[i+2]; //o +2 pular o 0x e copia só os valores importantes
     }
 
-    tam_dec = hex_to_dec(valor, v_decimal, tam); 
+    int_decimal = hex_to_dec(valor, tam); 
 
     //1ª linha é valor na base binaria
-    int tam_binario = dec_to_bin(int_decimal, v_binario);
+    tam_bin = dec_to_bin(int_decimal, v_binario);
 
     //2ª linha é valor na base decimal 
-    int tam_decimal = int_dec_to_char_dec(int_decimal, v_decimal);
+    tam_dec = int_dec_to_char_dec(int_decimal, v_decimal);
     
     //3ª linha é valor na base hexadecimal 
-    int tam_hex = n-1; //tirar só \n
+    tam_hex = n-1; //tirar só \n
     for (int i = 0; i < tam_hex; i++){
       v_hex[i] = str[i];
     }
  
     //4ª linha é trocar endianess e calcular hex_to_dec
      char endian_trocado[50];
-    tam_endian = inverte_endian(str, endian_trocado, n-2);
+    tam_endian = inverte_endian(str, endian_trocado, tam);
     //passar hex p dec 
-    tam_endian_decimal = hex_to_dec(endian_trocado, v_endian, 8);
+    int aux = hex_to_dec(endian_trocado, 8);
+    tam_endian_decimal = int_dec_to_char_dec(aux, v_endian);
     
   }
 
@@ -353,7 +333,7 @@ int main()
     //tratamento se for positivo
     if(pos){
       tam_dec = n-1; //-1 p tirar o \n
-      for(int i = 0; i < tam; i ++){
+      for(int i = 0; i < tam_dec; i ++){
         v_decimal[i] = str[i]; 
       }
 
@@ -363,7 +343,7 @@ int main()
     //tratamento se for negativo 
     if(neg){
       tam_dec = n-2;
-      for(int i = 0; i < tam; i ++){
+      for(int i = 0; i < tam_dec; i ++){
         v_decimal[i] = str[i]; 
       }
 
@@ -374,6 +354,23 @@ int main()
 
   }
 
+  //imprimir 
+  for(int i = 0; i< tam_bin; i++){
+    printf("%c", v_binario[i]);
+  }
+  printf("\n"); 
+  for(int i = 0; i< tam_dec; i++){
+    printf("%c", v_decimal[i]);
+  }
+  printf("\n"); 
+  for(int i = 0; i< tam_hex; i++){
+    printf("%c", v_hex[i]);
+  }
+  printf("\n"); 
+  for(int i = 0; i< tam_endian_decimal; i++){
+    printf("%c", v_endian[i]);
+  }
+  printf("\n"); 
   return 0;
 }
  

@@ -136,7 +136,7 @@ int dec_to_bin(int dec, char *binario){
       aux[n-1] ='0';
   }
   
-  for(int j = n, i=0; j >= 0; j--, i++){
+  for(int j = n-1, i=0; j >= 0; j--, i++){
     binario[i] = aux[j];
   };
   return n;
@@ -345,11 +345,11 @@ int main()
       tam_bin = dec_to_bin(int_decimal, v_binario);
 
       //3ª linha é o decimal em hex/ usar binario da primeira linha p converter mais facil
-      tam_hex = bin_to_hex(v_binario, v_hex; tam_bin);
+      tam_hex = bin_to_hex(v_binario, v_hex, tam_bin);
 
       //4ª linha é endian trocado
       char endian_trocado[50];
-      tam_endian = inverte_endian(v_hex, endian_trocado, tam);
+      int tam_endian = inverte_endian(v_hex, endian_trocado, tam_hex);
       //passar hex p dec 
       int aux = hex_to_dec(endian_trocado, 8);
       tam_endian_decimal = int_dec_to_char_dec(aux, v_endian);

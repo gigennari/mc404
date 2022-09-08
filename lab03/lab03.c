@@ -96,7 +96,6 @@ void hex_to_bin(char *hex, int tam){
   for (int i = 0; i < tam; i++){
     //converter cada dígito para binário 
     x = hex[i];
-    printf("num é %d\n", x);
     //se for numero
     if(48 <= x && x <= 57){
         dec_to_bin(x - 48, 4);
@@ -227,17 +226,92 @@ void bin_to_hex(char *bin, int tam){
   }
 };
 
-//4ª linha  - inverter endianess e recalcular hex to dec ou só mandar dec 
-
-void inverte_endianess(){
-
-}
 
 int main()
 {
   char str[20];
   int n = read(0, str, 20);
   write(1, str, n);
+
+  //identificar se recebemos hex ou dec
+  int hex = 0, dec = 0, aux;
+  //como hex comeca c 0x, vamos verificar o segundo dígito
+  aux = str[1];
+  //pela ascii x = 120 e X = 88
+  if(aux == 120 || aux ==  88){
+    hex = 1;
+  }
+  else{
+    dec = 1;
+  }
+
+  //tratamento se for hex
+  if(hex){
+    int tam = n-3;
+    char valor[50]; //menos 1 para tirar o )x e \n
+    for(int i = 0; i < tam; i ++){
+      valor[i] = str[i+2]; //o +2 pular o 0x e copia só os valores importantes
+    }
+
+    //1ª linha é valor na base binaria
+    hex_to_bin(valor, tam);
+
+    //2ª linha é valor na base decimal 
+    hex_to_dec(valor, tam);
+
+    //3ª linha é valor na base hexacimal 
+    printf("%s", str); 
+
+    //4ª linha é trocar endianess e calcular hex_to_dec
+    char endian_trocado[50];
+    char aux[50];
+    if(tam < 8){
+        for(int i = 0; i < 8-tam; i++){
+            aux[i] = '0';
+        }
+        for(int j = 8-tam, i=0; j < 8; j++, i++){
+            aux[j] = valor[i];
+        }
+    }
+        
+    for(int i = tam+1, j=0; i > 0; i -= 2, j += 2){
+        
+      endian_trocado[j] = aux[i-1];
+      endian_trocado[j+1] = aux[i]; 
+    }
+    
+    hex_to_dec(endian_trocado, 8);
+  }
+
+  //tratamento se for dec
+  if(dec){
+    //identificar se é pos ou neg
+    int aux = str[0];
+    int neg = 0;
+    //sinal - vale 45 
+    if(aux == 45){
+      neg = 1;
+    }
+
+    //1ª linha é converter para binário - se neg, em complemento de 2
+
+    
+    //2ª linha é valor na base decimal - só imprimir 
+    printf("%s\n", str);
+
+    //3ª linha é valor hexadecimal 
+    printf("Ox");
+    //
+
+    //
+
+    //4ª linha é trocar endianess
+
+
+
+
+  }
+
 
     
   return 0;

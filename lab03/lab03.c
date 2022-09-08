@@ -83,7 +83,6 @@ int char_dec_to_int_dec(char *dec, int tam){
   return total;
 }
 
-
 int int_dec_to_char_dec(int dec, char* destino) {
     char* ptr = destino, *ptr1 = destino, tmp_char;
     int tmp, n=0;
@@ -175,71 +174,72 @@ void bin_to_2complement(char *bin, int tam){
       
 }
 
-
-//coneverte a patir do binário da primeira linha para hex
+//coneverte a patir do binário da primeira linha para hex, tam = tam do binario
 //Compactar cada quatro dígitos binários em um único dígito hexa segundo seu valor
-void bin_to_hex(char *bin, int tam){
+int bin_to_hex(char *bin, char *hex, int tam){
   //num de iterações 
   int iter = tam / 4; 
   //residual 
   int res = tam % 4;
-  int pos = iter;
+  int pos_inv = iter;
+  int pos_em_hex = 0;
+  int n = 0;
   
   //cálculo do resto da frente 
     if(res != 0){
        int total = 0;
-    
         if(res == 3){
             total += (bin[0] - 48) * 4;
             total += (bin[1] - 48) * 2;
             total += (bin[2] - 48) * 1;
         }
-        
         if(res == 2){
             total += (bin[0] - 48) * 2;
             total += (bin[1] - 48) * 1;
         }
-        
         if(res == 1){
             total += (bin[0] - 48) * 1;
         } 
-        //impressao
+        //escreve no vetor 
         if(total <= 9){
-        printf("%d", total);
+            char c = "0123456789"[total];
+            hex[pos_em_hex] = c;
         }
         else{
             char c = total + '7';
-            printf("%c", c);
+            hex[pos_em_hex] = c;
         }
+        pos_em_hex++;
+        n++;
     }
     
     int hex_inv[iter];
   
   //de trás pra frente
-  for(int i = 0; i < iter; i++){
+    for(int i = 0; i < iter; i++){
       int total = 0;
       total += (bin[(tam-1) - (4*i)] - 48) * 1;
       total += (bin[(tam-2) - (4*i)] - 48) * 2;
       total += (bin[(tam-3) - (4*i)] - 48) * 4;
       total += (bin[(tam-4) - (4*i)] - 48) * 8;
-      
+      hex_inv[pos_inv] = total;
+      pos_inv--;
+    }
 
-      hex_inv[pos] = total;
-      pos--;
-  }
-
-  //impressao
-  for(int j = iter; j > 0; j--){
-    
+    for(int j = iter, i=pos_em_hex; j > 0; j--, i++){
         if(hex_inv[j] <= 9){
-            printf("%d", hex_inv[j]);
+            int aux = hex_inv[j];
+            char c = "0123456789"[aux];
+            hex[i] = c;
         }
         else{
             char c = hex_inv[j] + '7';
-            printf("%c", c);
+            hex[i] = c;
         }
-  }
-};
+        n++;
+    }
+    return n;
+}
 
 int inverte_endian(char *str, char *endian_trocado, int tam){
  
@@ -309,7 +309,7 @@ int main()
     }
  
     //4ª linha é trocar endianess e calcular hex_to_dec
-     char endian_trocado[50];
+    char endian_trocado[50];
     tam_endian = inverte_endian(str, endian_trocado, tam);
     //passar hex p dec 
     int aux = hex_to_dec(endian_trocado, 8);
@@ -333,16 +333,32 @@ int main()
     //tratamento se for positivo
     if(pos){
       tam_dec = n-1; //-1 p tirar o \n
+      
+      //2ª linha é o próprio decimal  
       for(int i = 0; i < tam_dec; i ++){
         v_decimal[i] = str[i]; 
       }
 
       int_decimal = char_dec_to_int_dec(v_decimal, tam_dec);
+
+      //1ª linha é em binario 
+      tam_bin = dec_to_bin(int_decimal, v_binario);
+
+      //3ª linha é o decimal em hex/ usar binario da primeira linha p converter mais facil
+      tam_hex = bin_to_hex(v_binario, v_hex; tam_bin);
+
+      //4ª linha é endian trocado
+      char endian_trocado[50];
+      tam_endian = inverte_endian(v_hex, endian_trocado, tam);
+      //passar hex p dec 
+      int aux = hex_to_dec(endian_trocado, 8);
+      tam_endian_decimal = int_dec_to_char_dec(aux, v_endian);
+
     }
 
     //tratamento se for negativo 
     if(neg){
-      tam_dec = n-2;
+      tam_dec = n-2; //tirar \n e sinal negativo 
       for(int i = 0; i < tam_dec; i ++){
         v_decimal[i] = str[i]; 
       }

@@ -21,6 +21,7 @@ Saída: seguintes informações seguidas de quebras de linha:
 
 */
 #include <stdlib.h>
+#define MAX 50;
 
 int read(int __fd, const void *__buf, int __n){
   int bytes;
@@ -294,6 +295,9 @@ int main()
     }
 
     //1ª linha é converter para binário - se neg, em complemento de 2
+    char bin[50];
+
+    dec_to_bin(10, bin);
 
     
     //2ª linha é valor na base decimal - só imprimir 

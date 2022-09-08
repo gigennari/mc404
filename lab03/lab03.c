@@ -21,7 +21,7 @@ Saída: seguintes informações seguidas de quebras de linha:
 
 */
 #include <stdlib.h>
-#define MAX 50;
+#define MAX 50
 
 int read(int __fd, const void *__buf, int __n){
   int bytes;
@@ -52,7 +52,35 @@ void write(int __fd, const void *__buf, int __n){
   );
 }
 
-//1ª linha:
+
+//passa por cada dígito, multiplicando pela potência e somando
+int hex_to_dec(char *hex, int tam){
+    int total = 0, p = 1, x;
+
+    for(int i = tam-1; i >= 0; i--){
+      x = hex[i];
+      //se for numero
+      if(48 <= x && x <= 57){
+        total = total + ((x-48) * p);
+      }
+      //se for letra
+      if (65 <= x && x <= 71){
+          total =  total + ((x - 55) * p);
+      }
+      p = p * 16;
+    }
+    return total;
+}
+
+int char_dec_to_int_dec(char *dec, int tam){
+  int total = 0;
+  for(int i = 0; i < tam; i++){
+    int digito = dec[i] - '0';
+    total *= 10;
+    total += digito;
+  }
+  return total;
+}
 
 //divisões sucessivas por 2
 void dec_to_bin(int dec, int n){
@@ -91,7 +119,7 @@ void dec_to_bin(int dec, int n){
 }
 
 //expandir cada dígito hexa em quatro dígitos binários, tam é a qtde de dígitos no numero hex 
-void hex_to_bin(char *hex, int tam){
+void hex_to_bin(char *hex, int tam, char *binario){
   int x;
 
   for (int i = 0; i < tam; i++){
@@ -141,28 +169,9 @@ void bin_to_2complement(char *bin, int tam){
       
 }
 
-//2ª linha - converter a partir do binário da primeira linha
 
-//passa por cada dígito, multiplicando pela potência e somando
-void hex_to_dec(char *hex, int tam){
-    int total = 0, p = 1, x;
 
-    for(int i = tam-1; i >= 0; i--){
-      x = hex[i];
-      //se for numero
-      if(48 <= x && x <= 57){
-        total = total + ((x-48) * p);
-      }
-      //se for letra
-      if (65 <= x && x <= 71){
-          total =  total + ((x - 55) * p);
-      }
-      p = p * 16;
-    }
-    printf("%d", total);
-}
-
-//3ª linha - coneverte a patir do binário da primeira linha para hex
+//coneverte a patir do binário da primeira linha para hex
 //Compactar cada quatro dígitos binários em um único dígito hexa segundo seu valor
 void bin_to_hex(char *bin, int tam){
   //num de iterações 
@@ -234,6 +243,12 @@ int main()
   int n = read(0, str, 20);
   write(1, str, n);
 
+  int tam_binario, tam_dec, tam_hex, tam_endian, int_decimal;
+  char v_binario[MAX];
+  char v_decimal[MAX];
+  char v_hex[MAX];
+  char v_endian[MAX];
+
   //identificar se recebemos hex ou dec
   int hex = 0, dec = 0, aux;
   //como hex comeca c 0x, vamos verificar o segundo dígito
@@ -246,22 +261,24 @@ int main()
     dec = 1;
   }
 
+
   //tratamento se for hex
   if(hex){
     int tam = n-3;
-    char valor[50]; //menos 1 para tirar o )x e \n
+
+    char valor[MAX]; //menos 1 para tirar o )x e \n
     for(int i = 0; i < tam; i ++){
       valor[i] = str[i+2]; //o +2 pular o 0x e copia só os valores importantes
     }
 
+    int_decimal = hex_to_dec(valor); 
+
     //1ª linha é valor na base binaria
-    hex_to_bin(valor, tam);
 
     //2ª linha é valor na base decimal 
-    hex_to_dec(valor, tam);
-
-    //3ª linha é valor na base hexacimal 
-    printf("%s", str); 
+    
+    //3ª linha é valor na base hexadecimal 
+ 
 
     //4ª linha é trocar endianess e calcular hex_to_dec
     char endian_trocado[50];
@@ -275,49 +292,51 @@ int main()
         }
     }
         
-    for(int i = tam+1, j=0; i > 0; i -= 2, j += 2){
-        
+    for(int i = tam+1, j=0; i > 0; i -= 2, j += 2){ 
       endian_trocado[j] = aux[i-1];
       endian_trocado[j+1] = aux[i]; 
     }
     
-    hex_to_dec(endian_trocado, 8);
+    
   }
 
   //tratamento se for dec
   if(dec){
-    //identificar se é pos ou neg
+    //identificar se é pos ou neg pelo primeiro caractere '-'
     int aux = str[0];
-    int neg = 0;
+    int neg = 0, pos = 0;
     //sinal - vale 45 
     if(aux == 45){
       neg = 1;
     }
+    else{
+      pos = 1;
+    }
 
-    //1ª linha é converter para binário - se neg, em complemento de 2
-    char bin[50];
+    //tratamento se for positivo
+    if(pos){
+      tam_dec = n-1; //-1 p tirar o \n
+      for(int i = 0; i < tam; i ++){
+        v_decimal[i] = str[i]; 
+      }
 
-    dec_to_bin(10, bin);
+      int_decimal = char_dec_to_int_dec(v_decimal, tam_dec);
+    }
 
-    
-    //2ª linha é valor na base decimal - só imprimir 
-    printf("%s\n", str);
+    //tratamento se for negativo 
+    if(neg){
+      tam_dec = n-2;
+      for(int i = 0; i < tam; i ++){
+        v_decimal[i] = str[i]; 
+      }
 
-    //3ª linha é valor hexadecimal 
-    printf("Ox");
-    //
+      int_decimal = char_dec_to_int_dec(v_decimal, tam_dec);
 
-    //
-
-    //4ª linha é trocar endianess
-
-
+    }
 
 
   }
 
-
-    
   return 0;
 }
  

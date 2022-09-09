@@ -20,7 +20,6 @@ Saída: seguintes informações seguidas de quebras de linha:
 
 
 */
-#include <stdlib.h>
 #define MAX 50
 
 int read(int __fd, const void *__buf, int __n){
@@ -66,6 +65,9 @@ int hex_to_dec(char *hex, int tam){
       //se for letra
       if (65 <= x && x <= 71){
           total =  total + ((x - 55) * p);
+      }
+      if (97 <= x && x <= 102){
+          total =  total + ((x - 87) * p);
       }
       p = p * 16;
     }
@@ -142,10 +144,12 @@ int dec_to_bin(int dec, char *binario){
   return n;
 }
 
-void bin_to_2complement(char *bin, int tam){
+
+int bin_to_2complement(char *bin, char *destino,  int tam){
     
     //se houver apenas zeros, basta concatenar 1 na frente 
     int i, x; 
+
     for(i = tam-1; i >= 0; i--){
       if(bin[i] == '1'){
           break;
@@ -154,23 +158,29 @@ void bin_to_2complement(char *bin, int tam){
 
     //se i chegar até uma posição antes do início do vetor, só tem zero
     if(i == -1){
-      printf("1%s", bin);
+      destino[0] = 1;
+      for(int j = 1; j < tam; j++){
+        destino[j]= '0';
+      }
+      return tam+1;
     }
     else{
         for (int j = 0; j < i; j++){
             x = bin[j];
             if (x == 49){
-                  printf("0");
+              destino[j] = '0';
             }
             else{
-                  printf("1");
+                  destino[j] = '1';
             }
         }
         
         for (int k = i; k < tam; k++){
-            printf("%c", bin[k]);
+            destino[k] = bin[k];
         }
     }
+
+    return tam;
       
 }
 
@@ -181,7 +191,7 @@ int bin_to_hex(char *bin, char *hex, int tam){
   int iter = tam / 4; 
   //residual 
   int res = tam % 4;
-  int pos_inv = iter;
+  int pos_inv = iter-1;
   int pos_em_hex = 0;
   int n = 0;
   
@@ -226,7 +236,7 @@ int bin_to_hex(char *bin, char *hex, int tam){
       pos_inv--;
     }
 
-    for(int j = iter, i=pos_em_hex; j > 0; j--, i++){
+    for(int j = 0, i=pos_em_hex; j < iter; j++, i++){
         if(hex_inv[j] <= 9){
             int aux = hex_inv[j];
             char c = "0123456789"[aux];
@@ -250,11 +260,11 @@ int inverte_endian(char *str, char *endian_trocado, int tam){
             aux[i] = '0';
         }
         for(int j = 8-tam, i=0; j < 8; j++, i++){
-            aux[j] = str[i+2];
+            aux[j] = str[i];
         }
     }
         
-    for(int i = tam+1, j=0; i > 0; i -= 2, j += 2){ 
+    for(int i = 7, j=0; i > 0; i -= 2, j += 2){ 
       endian_trocado[j] = aux[i-1];
       endian_trocado[j+1] = aux[i]; 
     }
@@ -265,7 +275,6 @@ int main()
 {
   char str[20];
   int n = read(0, str, 20);
-  write(1, str, n);
 
   int tam_bin, tam_dec, tam_hex, tam_endian_decimal, int_decimal;
   char v_binario[MAX];
@@ -305,12 +314,12 @@ int main()
     //3ª linha é valor na base hexadecimal 
     tam_hex = n-1; //tirar só \n
     for (int i = 0; i < tam_hex; i++){
-      v_hex[i] = str[i];
+      v_hex[i] = str[i+2];
     }
  
     //4ª linha é trocar endianess e calcular hex_to_dec
     char endian_trocado[50];
-    tam_endian = inverte_endian(str, endian_trocado, tam);
+    int tam_endian = inverte_endian(v_hex, endian_trocado, tam);
     //passar hex p dec 
     int aux = hex_to_dec(endian_trocado, 8);
     tam_endian_decimal = int_dec_to_char_dec(aux, v_endian);
@@ -331,7 +340,7 @@ int main()
     }
 
     //tratamento se for positivo
-    if(pos){
+    if(pos == 1){
       tam_dec = n-1; //-1 p tirar o \n
       
       //2ª linha é o próprio decimal  
@@ -357,13 +366,31 @@ int main()
     }
 
     //tratamento se for negativo 
-    if(neg){
+    if(neg == 1){
       tam_dec = n-2; //tirar \n e sinal negativo 
+      for(int i = 1, j=0; i < n-1; i ++, j++){
+        v_decimal[j] = str[i]; 
+      }
+
+      int_decimal = char_dec_to_int_dec(v_decimal, tam_dec);
+
+      //volta sinal negativo p imprimir
+      tam_dec = n-1;
       for(int i = 0; i < tam_dec; i ++){
         v_decimal[i] = str[i]; 
       }
 
-      int_decimal = char_dec_to_int_dec(v_decimal, tam_dec);
+      char bin_aux[50];
+      int tam_bin_aux = dec_to_bin(int_decimal, bin_aux);
+      int tam_bin = bin_to_2complement(bin_aux, v_binario, tam_bin_aux);
+
+      int tam_hex = bin_to_hex(v_binario, v_hex, tam_bin);
+
+      char endian_trocado[50];
+      int tam_endian = inverte_endian(v_hex, endian_trocado, tam_hex);
+      //passar hex p dec 
+      int aux = hex_to_dec(endian_trocado, 8);
+      tam_endian_decimal = int_dec_to_char_dec(aux, v_endian);
 
     }
 
@@ -371,6 +398,18 @@ int main()
   }
 
   //imprimir 
+  write(1, "0b", 2); 
+  write(1, v_binario, tam_bin);
+  write(1, "\n", 1); 
+  write(1, v_decimal, tam_dec);
+   write(1, "\n", 1);
+    write(1, "\n", 1); 
+   write(1, "0x", 2); 
+  write(1, v_hex, tam_hex);
+   write(1, "\n", 1); 
+  write(1, v_endian, tam_endian_decimal);
+   write(1, "\n", 1); 
+  /*
   for(int i = 0; i< tam_bin; i++){
     printf("%c", v_binario[i]);
   }
@@ -386,7 +425,8 @@ int main()
   for(int i = 0; i< tam_endian_decimal; i++){
     printf("%c", v_endian[i]);
   }
-  printf("\n"); 
+  printf("\n");
+  */ 
   return 0;
 }
  

@@ -16,4 +16,5 @@
 ### Lab 04 - Leitura e interpretação manual de um arquivo ELF
 [Instruções](https://docs.google.com/document/d/1USJJiLzI9wVc5QMEASh9cncaplaLwj5Uzl3MQ5mpygg/edit?usp=sharing) 
 
-
+### Trabalho 01 - Desmontador 
+[Instruções](https://docs.google.com/document/d/1rhp6YR4HJNRNBkUhbHZH49Xe7b_nSANGjX8QGDmn5Ns/edit)

@@ -17,7 +17,18 @@ Implementar uma versão simplificada da ferramenta *objdump*. O programa deve re
  ### Linguagem 
 O código deve ser feito em C, em um arquivo chamado ```desmontador.c```
 
- ### Bibliotecas
+ ### Bibliotecas permitida
+
+unistd.h e fcntl.h
+
+
+
 
  ## Entrada 
+*Executáveis compilados* 
+
+## aída
+
+
+
 

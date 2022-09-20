@@ -86,7 +86,57 @@ void converte_32bits_lm(char* bits){
 
 int main()
 {
-    return 0;
+  //argc - numero de comandos totais passado pela linha de comando ao executavel (conta pelos espaços)
+  //argv é char array cpntendo cada argumento passado
+
+  /*
+  1: ./desmontador -M=no-aliases -d test.x
+  2: ./desmontador -t test.x
+  3: ./desmontador -h test.x
+
+  */
+
+  //arg 0 é ./desmontador
+
+
+
+  //t ou h 
+  //econtrar e_shoff = offset em hexadecimal little endian - 0x20	0x28
+  //indica que as sections começam a partir desse offset
+
+        
+  unsigned char buf[500]; 
+          int fd = open(argv[2], O_RDONLY);
+          int x = read(fd, buf, 102400); 
+        write(0,buf, 200);
+        printf(" read leu: %d\n", x);
+  
+  char c = argv[1][1];
+
+
+  //encontrar seções 
+  if(c == 'h'){
+          write(0, "Sections:\n", 11);
+          write(0, "Idx Name              Size     VMA      Type\n", 46);
+          
+          //write(0,"   1 .text             00000204 000110b4 TEXT\n", 47);
+
+  }
+
+  if(c == 't'){
+          write(0, "SYMBOL TABLE:\n", 15);
+          
+  }
+
+  if(c == 'd'){
+          
+  }
+
+
+
+    
+
+  return 0;
 }
 
 void _start(){

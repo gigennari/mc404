@@ -139,8 +139,7 @@ void int_dec_to_char_dec(int dec, char* destino) {
 void print_value(unsigned char* arr, int offset, int size){ 
   for(int i = offset+size-1; i >= offset; i--){
     int x = arr[i];
-    printf("%d", x); 
-    printf("%s", "bulhufas");
+    printf("%d ", x); 
   }
 }
 
@@ -150,19 +149,20 @@ void identify_sections(unsigned char* file, int offset, int num_sections, int nu
   int a = offset + ((num_shtrtab)* 0x28 + 0x10);
   //printf("endereço do off p shtrtab %d", a); 
   int sh_offset = read_value(file, a, 4);
-  printf("endereço da seção shtrtab %d", sh_offset); 
 
   //ir no sh_offset - encontrar infos de cada seção
 
   for(int i = 0; i < num_sections; i++){
     //number
-    //int_dec_to_char_dec(i, c);
-    //write(0, c, 1);
+
+    
+    printf("%d              ", i); 
     //name
     //size  
-    //print_value(file, offset + (0x28 * i) + 0x10, 4); 
+    int aux = offset + (0x28 * i) + 0x14; 
+    print_value(file, aux, 8); 
     //write(0, size_arr, 1);
-    //printf("\n");
+    printf("\n");
   }
   //
 

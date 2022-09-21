@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <unistd.h>
 
 /*
@@ -11,6 +12,15 @@ close
 open 
 */
 
+#define SIZE_FILE_HEADER 52
+#define ADD_E_SHOFF 32
+#define SIZE_E_SHOFF 4
+#define ADD_E_ESHNUM 48
+#define SIZE_E_ESHNUM 2
+#define ADD_E_SHSTRNDX 50
+#define SIZE_E_SHSTRNDX 2
+
+
 
 //"-h" - tabela de seções 
 
@@ -22,6 +32,7 @@ open
 
 
 //função já recebe com endian invertido 
+/*
 void converte_4_bytes_32bits(char* bytes, char* destino){
 
 //os bytes recebidos estão em hexadecimal, converter pra bin 
@@ -49,6 +60,7 @@ int calcula_immediate(char* bits, int tam){
     total += digito * potencia; 
     potencia = 2 * potencia;
   }
+  return total;
 }
 
 void converte_32bits_lm(char* bits){
@@ -80,11 +92,18 @@ void converte_32bits_lm(char* bits){
 
 
 }
+*/
 
 
+void inverte_endian(char *str, char *endian_trocado, int tam){
+        
+    for(int i = tam -1, j=0; i >= 0; i -= 2, j += 2){ 
+      endian_trocado[j] = str[i-1];
+      endian_trocado[j+1] = str[i]; 
+    };
+}
 
-
-int main()
+int main(int argc, char *argv[])
 {
   //argc - numero de comandos totais passado pela linha de comando ao executavel (conta pelos espaços)
   //argv é char array cpntendo cada argumento passado
@@ -105,13 +124,28 @@ int main()
   //indica que as sections começam a partir desse offset
 
         
-  unsigned char buf[500]; 
-          int fd = open(argv[2], O_RDONLY);
-          int x = read(fd, buf, 102400); 
-        write(0,buf, 200);
-        printf(" read leu: %d\n", x);
+  
+  //COPIA SÓ FILE HEADER PARA INFOS INICIAIS 
+
+
+  int fd = open(argv[argc-1], O_RDONLY);
+  unsigned char fileHeader[SIZE_FILE_HEADER];
+  read(fd, fileHeader, SIZE_FILE_HEADER); 
+  //write(0, fileHeader[0], 1);
+
+  printf("caractere lido %d\n", fileHeader[0]);
+
+  //int e_shoff, e_shnum, e_shstrndx;
+  //e_shoff é endereço do começo da section header table.
+  
+  //for(int i = ++; i < 4; i)
+  //e_shnum  number of entries in the section header table.
+  //e_shstrndx index of the section header table entry that contains the section names.
+
+  //printf("um byte aí: %d\n", buf[5]);
   
   char c = argv[1][1];
+  //encontrar e_shoff
 
 
   //encontrar seções 
@@ -137,8 +171,4 @@ int main()
     
 
   return 0;
-}
-
-void _start(){
-  main();
 }

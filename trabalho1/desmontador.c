@@ -19,6 +19,9 @@ open
 #define SIZE_E_ESHNUM 2
 #define ADD_E_SHSTRNDX 50
 #define SIZE_E_SHSTRNDX 2
+#define ADD_E_PHNUM 44
+#define SIZE_E_PHNUM 2
+#define MAX_SIZE 102400
 
 
 
@@ -89,19 +92,83 @@ void converte_32bits_lm(char* bits){
 
 //1110011 - I - ecall, ebreak, cssrrw, cssrrwi, crrwi
 //csrrsi, csrrci
-
-
 }
 */
 
 
-void inverte_endian(char *str, char *endian_trocado, int tam){
-        
-    for(int i = tam -1, j=0; i >= 0; i -= 2, j += 2){ 
-      endian_trocado[j] = str[i-1];
-      endian_trocado[j+1] = str[i]; 
-    };
+/*
+exemplo 
+vai estar no hex como 44 02 00 00 (244 = 580)
+
+mas vem no array como unsigned char -> 68 2 0 0 -> inverter -> 0 0 2 68 
+
+depois de invertido, 
+ 0 0 
+
+lê até 16 bytes
+*/
+
+int read_value(unsigned char* arr, int offset, int size){
+  int v = 0; 
+  for(int i = 0; i < size; i++){
+    v += arr[offset+i]<<(8*i);
+  }
+  return v; 
 }
+
+void int_dec_to_char_dec(int dec, char* destino) {
+    char* ptr = destino, *ptr1 = destino, tmp_char;
+    int tmp, n=0;
+
+    do {
+        tmp = dec;
+        dec /= 10;
+        *ptr++ = "0123456789abcdefghijklmnopqrstuvwxyz" [(tmp - dec * 10)];
+        n+= 1;
+    } while ( dec );
+
+    if (tmp < 0) *ptr++ = '-';
+    *ptr-- = '\0';
+    while(ptr1 < ptr) {
+        tmp_char = *ptr;
+        *ptr--= *ptr1;
+        *ptr1++ = tmp_char;
+    }
+}
+
+void print_value(unsigned char* arr, int offset, int size){ 
+  for(int i = offset+size-1; i >= offset; i--){
+    int x = arr[i];
+    printf("%d", x); 
+    printf("%s", "bulhufas");
+  }
+}
+
+void identify_sections(unsigned char* file, int offset, int num_sections, int num_shtrtab)
+{
+  //acha endereço da shtrtab
+  int a = offset + ((num_shtrtab)* 0x28 + 0x10);
+  //printf("endereço do off p shtrtab %d", a); 
+  int sh_offset = read_value(file, a, 4);
+  printf("endereço da seção shtrtab %d", sh_offset); 
+
+  //ir no sh_offset - encontrar infos de cada seção
+
+  for(int i = 0; i < num_sections; i++){
+    //number
+    //int_dec_to_char_dec(i, c);
+    //write(0, c, 1);
+    //name
+    //size  
+    //print_value(file, offset + (0x28 * i) + 0x10, 4); 
+    //write(0, size_arr, 1);
+    //printf("\n");
+  }
+  //
+
+}
+
+//
 
 int main(int argc, char *argv[])
 {
@@ -112,47 +179,37 @@ int main(int argc, char *argv[])
   1: ./desmontador -M=no-aliases -d test.x
   2: ./desmontador -t test.x
   3: ./desmontador -h test.x
-
   */
 
-  //arg 0 é ./desmontador
-
-
-
-  //t ou h 
-  //econtrar e_shoff = offset em hexadecimal little endian - 0x20	0x28
-  //indica que as sections começam a partir desse offset
-
-        
-  
-  //COPIA SÓ FILE HEADER PARA INFOS INICIAIS 
-
-
   int fd = open(argv[argc-1], O_RDONLY);
-  unsigned char fileHeader[SIZE_FILE_HEADER];
-  read(fd, fileHeader, SIZE_FILE_HEADER); 
-  //write(0, fileHeader[0], 1);
+  unsigned char file[MAX_SIZE];
+  read(fd, file, MAX_SIZE); 
 
-  printf("caractere lido %d\n", fileHeader[0]);
-
-  //int e_shoff, e_shnum, e_shstrndx;
+  int e_shoff, e_shnum, e_shstrndx, e_phnum;
+  
   //e_shoff é endereço do começo da section header table.
-  
-  //for(int i = ++; i < 4; i)
+  e_shoff = read_value(file, ADD_E_SHOFF, SIZE_E_SHOFF);
+  //printf("valor de e_shoff deu %d\n", e_shoff); 
   //e_shnum  number of entries in the section header table.
-  //e_shstrndx index of the section header table entry that contains the section names.
-
-  //printf("um byte aí: %d\n", buf[5]);
-  
+  e_shnum = read_value(file, ADD_E_ESHNUM, SIZE_E_ESHNUM);
+  //printf("valor de e_shnum deu %d\n", e_shnum); 
+  //e_shstrndx index of the section header table entry that contains the section names - número da seção que é a shtrtab
+  e_shstrndx = read_value(file, ADD_E_SHSTRNDX, SIZE_E_SHSTRNDX);
+  //printf("valor de e_shstrndx deu %d\n", e_shstrndx); 
+  //e_phnum number of entries in the program header table
+  e_phnum = read_value(file, ADD_E_PHNUM, SIZE_E_PHNUM);
+  //printf("%d\n", e_phnum); 
+  //lê arquivo inteiro
+ 
   char c = argv[1][1];
-  //encontrar e_shoff
-
 
   //encontrar seções 
   if(c == 'h'){
           write(0, "Sections:\n", 11);
           write(0, "Idx Name              Size     VMA      Type\n", 46);
+          //sabemos que a shstrtab é começa no offset + 0x2 * e_shstrndx
           
+          identify_sections(file, e_shoff, e_shnum, e_shstrndx); 
           //write(0,"   1 .text             00000204 000110b4 TEXT\n", 47);
 
   }
@@ -165,10 +222,6 @@ int main(int argc, char *argv[])
   if(c == 'd'){
           
   }
-
-
-
-    
 
   return 0;
 }

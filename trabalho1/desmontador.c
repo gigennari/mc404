@@ -136,11 +136,138 @@ void int_dec_to_char_dec(int dec, char* destino) {
     }
 }
 
+int numero_digitos(int dec){
+  int pot = 1, e = 0, total = 1;
+  
+  while(total < dec){
+    pot *= 2;
+    total += pot;
+    e += 1;
+  }
+  return e+1;
+}
+
+//devolve o número de dígito do arr em binario
+int dec_to_bin(int dec, char *binario){
+  //descorbrir quantos digitos vamos usar 
+  int n = numero_digitos(dec);
+  int i = 0;
+  char aux[50];
+  while( dec != 1 ){
+    int atual = dec % 2; 
+    char c =  atual + '0';
+    aux[i] = c;
+    i++;
+    dec = dec / 2; 
+  };
+  
+  if (dec % 2 == 1){
+      aux[n-1] = '1';
+  }
+  else{
+      aux[n-1] ='0';
+  }
+  
+  for(int j = n-1, i=0; j >= 0; j--, i++){
+    binario[i] = aux[j];
+  };
+  return n;
+}
+
+//devolve o número de dígito do arr em he
+int bin_to_hex(char *bin, char *hex, int tam){
+  //num de iterações 
+  int iter = tam / 4; 
+  //residual 
+  int res = tam % 4;
+  int pos_inv = iter-1;
+  int pos_em_hex = 0;
+  int n = 0;
+  
+  //cálculo do resto da frente 
+    if(res != 0){
+       int total = 0;
+        if(res == 3){
+            total += (bin[0] - 48) * 4;
+            total += (bin[1] - 48) * 2;
+            total += (bin[2] - 48) * 1;
+        }
+        if(res == 2){
+            total += (bin[0] - 48) * 2;
+            total += (bin[1] - 48) * 1;
+        }
+        if(res == 1){
+            total += (bin[0] - 48) * 1;
+        } 
+        //escreve no vetor 
+        if(total <= 9){
+            char c = "0123456789"[total];
+            hex[pos_em_hex] = c;
+        }
+        else{
+            char c = total + 'W';
+            hex[pos_em_hex] = c;
+        }
+        pos_em_hex++;
+        n++;
+    }
+    
+    int hex_inv[iter];
+  
+  //de trás pra frente
+    for(int i = 0; i < iter; i++){
+      int total = 0;
+      total += (bin[(tam-1) - (4*i)] - 48) * 1;
+      total += (bin[(tam-2) - (4*i)] - 48) * 2;
+      total += (bin[(tam-3) - (4*i)] - 48) * 4;
+      total += (bin[(tam-4) - (4*i)] - 48) * 8;
+      hex_inv[pos_inv] = total;
+      pos_inv--;
+    }
+
+    for(int j = 0, i=pos_em_hex; j < iter; j++, i++){
+        if(hex_inv[j] <= 9){
+            int aux = hex_inv[j];
+            char c = "0123456789"[aux];
+            hex[i] = c;
+        }
+        else{
+            char c = hex_inv[j] + 'W';
+            hex[i] = c;
+        }
+        n++;
+    }
+    return n;
+}
+
+
 void print_value(unsigned char* arr, int offset, int size){ 
   for(int i = offset+size-1; i >= offset; i--){
-    printf("%#02x", arr[i]);
+    
+    if(arr[i] != 0){
+      char bin[50];
+      int s_bin = dec_to_bin(arr[i], bin);
+      char hex[16];
+      int s_hex = bin_to_hex(bin, hex, s_bin);
+      if(s_hex == 1){
+        write(0, "0", 1);
+      }
+      write(0, hex, s_hex);
+    }
+    else{
+      write(0, "00", 2);
+    }
 
   }
+}
+
+int strcompare(char* arr1, char*arr2, int tam){
+  for(int i = 0; i < tam; i++){
+    if(arr1[i] != arr2[i]){
+      return 0;
+    }
+  }
+  return 1;
 }
 
 void identify_sections(unsigned char* file, int offset, int num_sections, int num_shtrtab)
@@ -154,35 +281,62 @@ void identify_sections(unsigned char* file, int offset, int num_sections, int nu
 
   for(int i = 0; i < num_sections; i++){
     //number
-    printf("%d              ", i); 
+    //printf("%d", i); 
+    char num[2]; 
+    int_dec_to_char_dec(i, num);
+    num[1] = ' ';
+    write(0, "  ", 2);
+    write(0, num, 2);
+
     //name
-    int name_offset = sh_offset + read_value(file, offset + (i* 0x28  ), 4); 
-    char name[30];
+    int name_offset = sh_offset + read_value(file, offset + (i* 0x28), 4); 
+    char name[14];
     int s = 0; 
     char c;
     c = file[name_offset]; 
 
+  
     while(c != 0){
-      name[name_offset+s];
+      name[s] = file[name_offset+s];
       s++;
       c = file[name_offset+s]; 
     }
 
+    while(s < 14){
+      name[s] = ' ';
+      s++;
+    }
+    //printf("%s", name);
     write(0, name, s); 
-
-    
 
     //size  
     int aux = offset + (0x28 * i) + 0x14; 
     print_value(file, aux, 4); 
+    write(0, " ", 1);
     //write(0, size_arr, 1);
-    printf("\n");
+    //
+
+    //VMA - sh_addr - vai p 
+    aux = offset + (0x28 * i) + 0x0c; 
+    print_value(file, aux, 4); 
+
+    write(0, " ", 1);
+    //type
+    if(strcompare(name, ".text", 5)){
+      write(0, "TEXT", 4);
+    }
+    if(strcompare(name, ".data", 5)){
+      write(0, "DATA", 4);
+    }
+
+    //printf("\n");
+    write(0, "\n", 1);
   }
   //
 
 }
 
-//
+
 
 int main(int argc, char *argv[])
 {
@@ -220,7 +374,7 @@ int main(int argc, char *argv[])
   //encontrar seções 
   if(c == 'h'){
           write(0, "Sections:\n", 11);
-          write(0, "Idx Name              Size     VMA      Type\n", 46);
+          write(0, "Idx Name          Size     VMA      Type\n", 42);
           //sabemos que a shstrtab é começa no offset + 0x2 * e_shstrndx
           
           identify_sections(file, e_shoff, e_shnum, e_shstrndx); 
@@ -230,6 +384,9 @@ int main(int argc, char *argv[])
 
   if(c == 't'){
           write(0, "SYMBOL TABLE:\n", 15);
+          int add_symbtab, add_strtab; 
+
+        
           
   }
 

@@ -138,8 +138,8 @@ void int_dec_to_char_dec(int dec, char* destino) {
 
 void print_value(unsigned char* arr, int offset, int size){ 
   for(int i = offset+size-1; i >= offset; i--){
-    int x = arr[i];
-    printf("%d ", x); 
+    printf("%#02x", arr[i]);
+
   }
 }
 
@@ -154,13 +154,27 @@ void identify_sections(unsigned char* file, int offset, int num_sections, int nu
 
   for(int i = 0; i < num_sections; i++){
     //number
-
-    
     printf("%d              ", i); 
     //name
+    int name_offset = sh_offset + read_value(file, offset + (i* 0x28  ), 4); 
+    char name[30];
+    int s = 0; 
+    char c;
+    c = file[name_offset]; 
+
+    while(c != 0){
+      name[name_offset+s];
+      s++;
+      c = file[name_offset+s]; 
+    }
+
+    write(0, name, s); 
+
+    
+
     //size  
     int aux = offset + (0x28 * i) + 0x14; 
-    print_value(file, aux, 8); 
+    print_value(file, aux, 4); 
     //write(0, size_arr, 1);
     printf("\n");
   }

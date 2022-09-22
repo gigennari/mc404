@@ -31,13 +31,13 @@ Idx Name          Size     VMA      Type
 ``` llvm-objdump -t exec1.x```
 ```
 SYMBOL TABLE:
-000110d8         .text  00000000 .Lpcrel_hi0
-0001113c         .text  00000000 _end
-000110e4         .text  00000000 loop
-000110fc         .text  00000000 loop_in
-00011120         .text  00000000 loop_print
-00012148         .data  00000000 n
-000110d4         .text  00000000 _start
+000110d8 l       .text  00000000 .Lpcrel_hi0
+0001113c l       .text  00000000 _end
+000110e4 l       .text  00000000 loop
+000110fc l       .text  00000000 loop_in
+00011120 l       .text  00000000 loop_print
+00012148 l       .data  00000000 n
+000110d4 g       .text  00000000 _start
 ```
 
 ``` llvm-objdump -d test.x```

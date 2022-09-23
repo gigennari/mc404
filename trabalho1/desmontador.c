@@ -1,16 +1,6 @@
 #include <stdio.h>
 #include <unistd.h>
-
-/*
-read
-write 
-close 
-*/
-
 #include <fcntl.h>
-/*
-open 
-*/
 
 #define SIZE_FILE_HEADER 52
 #define ADD_E_SHOFF 32
@@ -22,16 +12,6 @@ open
 #define ADD_E_PHNUM 44
 #define SIZE_E_PHNUM 2
 #define MAX_SIZE 102400
-
-
-
-//"-h" - tabela de seções 
-
-
-//"-t" - tabela de símbolos 
-
-
-//"-d" - o código em linguagem de montagem
 
 
 //função já recebe com endian invertido 
@@ -240,7 +220,6 @@ int bin_to_hex(char *bin, char *hex, int tam){
     return n;
 }
 
-
 void print_value(unsigned char* arr, int offset, int size){ 
   for(int i = offset+size-1; i >= offset; i--){
     
@@ -336,8 +315,6 @@ void identify_sections(unsigned char* file, int offset, int num_sections, int nu
 
 }
 
-
-
 int main(int argc, char *argv[])
 {
   //argc - numero de comandos totais passado pela linha de comando ao executavel (conta pelos espaços)
@@ -371,7 +348,7 @@ int main(int argc, char *argv[])
  
   char c = argv[1][1];
 
-  //encontrar seções 
+  //"-h" - tabela de seções 
   if(c == 'h'){
           write(0, "Sections:\n", 11);
           write(0, "Idx Name          Size     VMA      Type\n", 42);
@@ -381,15 +358,58 @@ int main(int argc, char *argv[])
           //write(0,"   1 .text             00000204 000110b4 TEXT\n", 47);
 
   }
-
+  //"-t" - tabela de símbolos 
   if(c == 't'){
-          write(0, "SYMBOL TABLE:\n", 15);
-          int add_symbtab, add_strtab; 
+    write(0, "SYMBOL TABLE:\n", 15);
+    int add_symtab, add_strtab, num_symbols; 
+    //.symtab - endereços dos símbolos. 
+    //.strtab” -  nomes dos símbolos
 
-        
-          
+    //vai até shtrtab encontrar seções
+    int a = e_shoff + ((e_shstrndx)* 0x28 + 0x10);
+    int sh_offset = read_value(file, a, 4);
+
+    //ir no sh_offset - encontrar infos de cada seção
+      for(int i = 0; i < e_shnum; i++){
+        int name_offset = sh_offset + read_value(file, e_shoff + (i* 0x28), 4); 
+        char name[14];
+        int s = 0; 
+        char c = file[name_offset]; 
+
+        while(c != 0){
+          name[s] = file[name_offset+s];
+          s++;
+          c = file[name_offset+s]; 
+        }
+
+        if(strcompare(name, ".symtab", 7)){
+          add_symtab = sh_offset;
+          num_symbols = read_value(file, e_shoff + (i* 0x28) + 0x14, 4) / 16; 
+        }
+
+        if(strcompare(name, ".strtab", 7)){
+          add_strtab = sh_offset;
+        }        
+      }
+
+      /*Na seção .symtab, para cada símbolo:
+      Os primeiros 4 bytes representam o offset do nome do símbolo na seção “.strtab”.
+      Os 4 bytes seguintes representam o endereço do símbolo na memória do programa.
+      Os últimos 8 bytes representam outras informações que não nos são úteis neste momento.
+      */
+    printf("offset da symtab é %d e num de seções %d\n", add_symtab, num_symbols);
+    for(int i = 0; i < num_symbols; i++){
+
+    }
+
+
+
+
+      
   }
 
+
+  //"-d" - o código em linguagem de montagem
   if(c == 'd'){
           
   }

@@ -240,6 +240,13 @@ void print_value(unsigned char* arr, int offset, int size){
   }
 }
 
+void strcopy(char* arr1, char* arr2, int size){
+  for(int i = 0; i < size; i++){
+    arr1[i] = arr2[i];
+  }
+  arr1[size+1] = '\0';
+}
+
 int strcompare(char* arr1, char*arr2, int tam){
   for(int i = 0; i < tam; i++){
     if(arr1[i] != arr2[i]){
@@ -368,6 +375,7 @@ int main(int argc, char *argv[])
     //vai até shtrtab encontrar seções
     int a = e_shoff + ((e_shstrndx)* 0x28 + 0x10);
     int sh_offset = read_value(file, a, 4);
+    char sections[10][14];
 
     //ir no sh_offset - encontrar infos de cada seção
       for(int i = 0; i < e_shnum; i++){
@@ -382,13 +390,17 @@ int main(int argc, char *argv[])
           c = file[name_offset+s]; 
         }
 
+        strcopy(sections[i], name, s); 
+
         if(strcompare(name, ".symtab", 7)){
-          add_symtab = sh_offset;
-          num_symbols = read_value(file, e_shoff + (i* 0x28) + 0x14, 4) / 16; 
+
+          add_symtab = read_value(file, e_shoff + (i* 0x28) + 0x10, 4);
+          num_symbols = read_value(file, e_shoff + (i* 0x28) + 0x14, 4); 
+          num_symbols = num_symbols / 16;
         }
 
         if(strcompare(name, ".strtab", 7)){
-          add_strtab = sh_offset;
+          add_strtab = read_value(file, e_shoff + (i* 0x28) + 0x10, 4);
         }        
       }
 
@@ -397,8 +409,49 @@ int main(int argc, char *argv[])
       Os 4 bytes seguintes representam o endereço do símbolo na memória do programa.
       Os últimos 8 bytes representam outras informações que não nos são úteis neste momento.
       */
-    printf("offset da symtab é %d e num de seções %d\n", add_symtab, num_symbols);
-    for(int i = 0; i < num_symbols; i++){
+    
+    for(int i = 1; i < num_symbols; i++){
+      //j é a linha da symtab
+      int a = add_symtab + (16*i);
+      //printf("%d\n", a);
+      int off_in_strtab = read_value(file, a, 4);
+      print_value(file, a + 4, 4);
+      write(0, " ", 1);
+
+      //local ou global 
+      unsigned char sh_info = file[a+12];
+      sh_info = sh_info >>4; 
+      if(sh_info == 0){
+        write(0, "l", 1);
+      }
+      if(sh_info == 1){
+         write(0, "g", 1);
+      }
+      write(0, "         ", 9);
+
+      //seção
+      int section = read_value(file, a+14, 2);
+      write(0, sections[section], 14);
+      write(0, " ", 1);
+
+
+      //zeross
+      print_value(file, a + 8, 4);
+      write(0, "  ", 2);
+      //nome
+      int pos = add_strtab + off_in_strtab;
+      char c = file[pos];
+      char aux[30];
+      int s = 0; 
+      
+      while(c != 0){
+        aux[s] = c;
+        pos++;
+        c = file[pos];
+        s++; 
+      }
+      write(0, aux, s);
+      write(0, "\n", 1);
 
     }
 

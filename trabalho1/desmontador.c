@@ -302,48 +302,8 @@ void identify_sections(unsigned char* file, int offset, int num_sections, int nu
 
 }
 
-int main(int argc, char *argv[])
-{
-  //argc - numero de comandos totais passado pela linha de comando ao executavel (conta pelos espaços)
-  //argv é char array cpntendo cada argumento passado
-  /*
-  1: ./desmontador -M=no-aliases -d test.x
-  2: ./desmontador -t test.x
-  3: ./desmontador -h test.x
-  */
-  int fd = open(argv[argc-1], O_RDONLY);
-  unsigned char file[MAX_SIZE];
-  read(fd, file, MAX_SIZE); 
-
-  int e_shoff, e_shnum, e_shstrndx, e_phnum;
-  
-  //e_shoff é endereço do começo da section header table.
-  e_shoff = read_value(file, ADD_E_SHOFF, SIZE_E_SHOFF);
-  //printf("valor de e_shoff deu %d\n", e_shoff); 
-  //e_shnum  number of entries in the section header table.
-  e_shnum = read_value(file, ADD_E_ESHNUM, SIZE_E_ESHNUM);
-  //printf("valor de e_shnum deu %d\n", e_shnum); 
-  //e_shstrndx index of the section header table entry that contains the section names - número da seção que é a shtrtab
-  e_shstrndx = read_value(file, ADD_E_SHSTRNDX, SIZE_E_SHSTRNDX);
-  //printf("valor de e_shstrndx deu %d\n", e_shstrndx); 
-  //e_phnum number of entries in the program header table
-  e_phnum = read_value(file, ADD_E_PHNUM, SIZE_E_PHNUM);
-  //printf("%d\n", e_phnum); 
-  //lê arquivo inteiro
- 
-  char c = argv[1][1];
-
-  //"-h" - tabela de seções 
-  if(c == 'h'){
-          write(0, "Sections:\n", 11);
-          write(0, "Idx Name          Size     VMA      Type\n", 42);
-          //sabemos que a shstrtab é começa no offset + 0x2 * e_shstrndx
-          identify_sections(file, e_shoff, e_shnum, e_shstrndx); 
-          //write(0,"   1 .text             00000204 000110b4 TEXT\n", 47);
-  }
-  //"-t" - tabela de símbolos 
-  if(c == 't'){
-    write(0, "SYMBOL TABLE:\n", 15);
+void identify_symbols(unsigned char* file, int e_shoff, int e_shnum, int e_shstrndx){
+  write(0, "SYMBOL TABLE:\n", 15);
     int add_symtab, add_strtab, num_symbols; 
     //.symtab - endereços dos símbolos. 
     //.strtab” -  nomes dos símbolos
@@ -429,10 +389,69 @@ int main(int argc, char *argv[])
       write(0, aux, s);
       write(0, "\n", 1);
     }    
+}
+
+int main(int argc, char *argv[])
+{
+  //argc - numero de comandos totais passado pela linha de comando ao executavel (conta pelos espaços)
+  //argv é char array cpntendo cada argumento passado
+  /*
+  1: ./desmontador -M=no-aliases -d test.x
+  2: ./desmontador -t test.x
+  3: ./desmontador -h test.x
+  */
+  int fd = open(argv[argc-1], O_RDONLY);
+  unsigned char file[MAX_SIZE];
+  read(fd, file, MAX_SIZE); 
+
+  int e_shoff, e_shnum, e_shstrndx, e_phnum;
+  
+  //e_shoff é endereço do começo da section header table.
+  e_shoff = read_value(file, ADD_E_SHOFF, SIZE_E_SHOFF);
+  //printf("valor de e_shoff deu %d\n", e_shoff); 
+  //e_shnum  number of entries in the section header table.
+  e_shnum = read_value(file, ADD_E_ESHNUM, SIZE_E_ESHNUM);
+  //printf("valor de e_shnum deu %d\n", e_shnum); 
+  //e_shstrndx index of the section header table entry that contains the section names - número da seção que é a shtrtab
+  e_shstrndx = read_value(file, ADD_E_SHSTRNDX, SIZE_E_SHSTRNDX);
+  //printf("valor de e_shstrndx deu %d\n", e_shstrndx); 
+  //e_phnum number of entries in the program header table
+  e_phnum = read_value(file, ADD_E_PHNUM, SIZE_E_PHNUM);
+  //printf("%d\n", e_phnum); 
+  //lê arquivo inteiro
+ 
+  char c = argv[1][1];
+
+  //"-h" - tabela de seções 
+  if(c == 'h'){
+          write(0, "Sections:\n", 11);
+          write(0, "Idx Name          Size     VMA      Type\n", 42);
+          //sabemos que a shstrtab é começa no offset + 0x2 * e_shstrndx
+          identify_sections(file, e_shoff, e_shnum, e_shstrndx); 
+          //write(0,"   1 .text             00000204 000110b4 TEXT\n", 47);
+  }
+  //"-t" - tabela de símbolos 
+  if(c == 't'){
+    identify_symbols(file, e_shoff, e_shnum, e_shstrndx);
   }
   //"-d" - o código em linguagem de montagem
   if(c == 'd'){
-          
+
+    write(0, "Disassembly of section .text:\n", 30);
+    //econtrar ssection .text 
+
+    //rodar mesmo algoritmo da -t para achar todos os simbolos[
+
+    //printar endereço e nome do simbolo
+
+    //3 colunas 
+
+    //coluna 1: 
+
+    //coluna 2:
+
+    //coluna 3:
+    
   }
 
   return 0;

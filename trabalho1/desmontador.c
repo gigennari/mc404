@@ -75,19 +75,7 @@ void converte_32bits_lm(char* bits){
 }
 */
 
-
-/*
-exemplo 
-vai estar no hex como 44 02 00 00 (244 = 580)
-
-mas vem no array como unsigned char -> 68 2 0 0 -> inverter -> 0 0 2 68 
-
-depois de invertido, 
- 0 0 
-
-lê até 16 bytes
-*/
-
+//lê até 16 bytes
 int read_value(unsigned char* arr, int offset, int size){
   int v = 0; 
   for(int i = 0; i < size; i++){
@@ -280,28 +268,21 @@ void identify_sections(unsigned char* file, int offset, int num_sections, int nu
     int s = 0; 
     char c;
     c = file[name_offset]; 
-
-  
     while(c != 0){
       name[s] = file[name_offset+s];
       s++;
       c = file[name_offset+s]; 
     }
-
     while(s < 14){
       name[s] = ' ';
       s++;
     }
     //printf("%s", name);
     write(0, name, s); 
-
     //size  
     int aux = offset + (0x28 * i) + 0x14; 
     print_value(file, aux, 4); 
     write(0, " ", 1);
-    //write(0, size_arr, 1);
-    //
-
     //VMA - sh_addr - vai p 
     aux = offset + (0x28 * i) + 0x0c; 
     print_value(file, aux, 4); 
@@ -314,7 +295,6 @@ void identify_sections(unsigned char* file, int offset, int num_sections, int nu
     if(strcompare(name, ".data", 5)){
       write(0, "DATA", 4);
     }
-
     //printf("\n");
     write(0, "\n", 1);
   }
@@ -326,13 +306,11 @@ int main(int argc, char *argv[])
 {
   //argc - numero de comandos totais passado pela linha de comando ao executavel (conta pelos espaços)
   //argv é char array cpntendo cada argumento passado
-
   /*
   1: ./desmontador -M=no-aliases -d test.x
   2: ./desmontador -t test.x
   3: ./desmontador -h test.x
   */
-
   int fd = open(argv[argc-1], O_RDONLY);
   unsigned char file[MAX_SIZE];
   read(fd, file, MAX_SIZE); 
@@ -360,10 +338,8 @@ int main(int argc, char *argv[])
           write(0, "Sections:\n", 11);
           write(0, "Idx Name          Size     VMA      Type\n", 42);
           //sabemos que a shstrtab é começa no offset + 0x2 * e_shstrndx
-          
           identify_sections(file, e_shoff, e_shnum, e_shstrndx); 
           //write(0,"   1 .text             00000204 000110b4 TEXT\n", 47);
-
   }
   //"-t" - tabela de símbolos 
   if(c == 't'){
@@ -452,16 +428,8 @@ int main(int argc, char *argv[])
       }
       write(0, aux, s);
       write(0, "\n", 1);
-
-    }
-
-
-
-
-      
+    }    
   }
-
-
   //"-d" - o código em linguagem de montagem
   if(c == 'd'){
           

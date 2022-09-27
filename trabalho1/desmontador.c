@@ -298,8 +298,6 @@ void identify_sections(unsigned char* file, int offset, int num_sections, int nu
     //printf("\n");
     write(0, "\n", 1);
   }
-  //
-
 }
 
 void identify_symbols(unsigned char* file, int e_shoff, int e_shnum, int e_shstrndx){
@@ -391,6 +389,62 @@ void identify_symbols(unsigned char* file, int e_shoff, int e_shnum, int e_shstr
     }    
 }
 
+void disassembly_section(unsigned char* file, int e_shoff, int e_shnum, int e_shstrndxs){
+  write(0, "Disassembly of section .text:\n", 30);
+  //econtrar ssection .text 
+
+  //acha endereço da shtrtab
+  int a = e_shoff + ((e_shstrndxs)* 0x28 + 0x10);
+  //printf("endereço do off p shtrtab %d", a); 
+  int sh_offset = read_value(file, a, 4);
+
+  //ir no sh_offset - encontrar infos de cada seção
+
+  for(int i = 0; i < e_shnum; i++){
+    //number
+    //printf("%d", i); 
+    char num[2]; 
+    int_dec_to_char_dec(i, num);
+    num[1] = ' ';
+    write(0, "  ", 2);
+    write(0, num, 2);
+
+    //name
+    int name_offset = sh_offset + read_value(file, e_shoff + (i* 0x28), 4); 
+    char name[14];
+    int s = 0; 
+    char c;
+    c = file[name_offset]; 
+    while(c != 0){
+      name[s] = file[name_offset+s];
+      s++;
+      c = file[name_offset+s]; 
+    }
+    while(s < 14){
+      name[s] = ' ';
+      s++;
+    }
+    
+  }
+  //
+
+
+  //rodar mesmo algoritmo da -t para achar todos os simbolos[
+
+  //printar endereço e nome do simbolo
+
+
+  //3 colunas 
+
+  //coluna 1: 
+
+  //coluna 2:
+
+  //coluna 3:
+
+  s
+}
+
 int main(int argc, char *argv[])
 {
   //argc - numero de comandos totais passado pela linha de comando ao executavel (conta pelos espaços)
@@ -426,9 +480,7 @@ int main(int argc, char *argv[])
   if(c == 'h'){
           write(0, "Sections:\n", 11);
           write(0, "Idx Name          Size     VMA      Type\n", 42);
-          //sabemos que a shstrtab é começa no offset + 0x2 * e_shstrndx
           identify_sections(file, e_shoff, e_shnum, e_shstrndx); 
-          //write(0,"   1 .text             00000204 000110b4 TEXT\n", 47);
   }
   //"-t" - tabela de símbolos 
   if(c == 't'){
@@ -436,23 +488,7 @@ int main(int argc, char *argv[])
   }
   //"-d" - o código em linguagem de montagem
   if(c == 'd'){
-
-    write(0, "Disassembly of section .text:\n", 30);
-    //econtrar ssection .text 
-
-    //rodar mesmo algoritmo da -t para achar todos os simbolos[
-
-    //printar endereço e nome do simbolo
-
-    //3 colunas 
-
-    //coluna 1: 
-
-    //coluna 2:
-
-    //coluna 3:
-    
+    disassembly_section(file, e_shoff, e_shnum, e_shstrndx); 
   }
-
   return 0;
 }

@@ -114,18 +114,23 @@ def main():
     sh_grade = grade_session_headers(reference_dir, student_dir)    
     print_v(1,"Session headers grading : {}".format(sh_grade))
 
-    print_v(2,"\nGrading the disassembly tests (c1)!")
-    d1_grade = grade_disassembly(reference_dir, student_dir, 1)
-    print_v(1,"Disassembly grading (c1): {}".format(d1_grade))
+
+    #print_v(2,"\nGrading the disassembly tests (c1)!")
+    #d1_grade = grade_disassembly(reference_dir, student_dir, 1)
+    #print_v(1,"Disassembly grading (c1): {}".format(d1_grade))
     
-    print_v(2,"\nGrading the disassembly tests (c2)!")
-    d2_grade = grade_disassembly(reference_dir, student_dir, 5)
-    print_v(1,"Disassembly grading (c2): {}".format(d2_grade))
+    #print_v(2,"\nGrading the disassembly tests (c2)!")
+    #d2_grade = grade_disassembly(reference_dir, student_dir, 5)
+    #print_v(1,"Disassembly grading (c2): {}".format(d2_grade))
 
-    print_v(2,"\nGrading the disassembly tests (c3)!")
-    d3_grade = grade_disassembly(reference_dir, student_dir, 9)
-    print_v(1,"Disassembly grading (c3): {}".format(d3_grade))
+    #print_v(2,"\nGrading the disassembly tests (c3)!")
+    #d3_grade = grade_disassembly(reference_dir, student_dir, 9)
+    #print_v(1,"Disassembly grading (c3): {}".format(d3_grade))
 
+
+    d1_grade = 0
+    d2_grade = 0
+    d3_grade = 0
     grade = (st_grade+sh_grade+d1_grade+d2_grade+d3_grade) / 5
     print("Final grading: {0:.2f}".format(grade))
 

@@ -217,12 +217,12 @@ void print_value(unsigned char* arr, int offset, int size){
       char hex[16];
       int s_hex = bin_to_hex(bin, hex, s_bin);
       if(s_hex == 1){
-        write(0, "0", 1);
+        write(1, "0", 1);
       }
-      write(0, hex, s_hex);
+      write(1, hex, s_hex);
     }
     else{
-      write(0, "00", 2);
+      write(1, "00", 2);
     }
 
   }
@@ -259,8 +259,8 @@ void identify_sections(unsigned char* file, int offset, int num_sections, int nu
     char num[2]; 
     int_dec_to_char_dec(i, num);
     num[1] = ' ';
-    write(0, "  ", 2);
-    write(0, num, 2);
+    write(1, "  ", 2);
+    write(1, num, 2);
 
     //name
     int name_offset = sh_offset + read_value(file, offset + (i* 0x28), 4); 
@@ -278,30 +278,30 @@ void identify_sections(unsigned char* file, int offset, int num_sections, int nu
       s++;
     }
     //printf("%s", name);
-    write(0, name, s); 
+    write(1, name, s); 
     //size  
     int aux = offset + (0x28 * i) + 0x14; 
     print_value(file, aux, 4); 
-    write(0, " ", 1);
+    write(1, " ", 1);
     //VMA - sh_addr - vai p 
     aux = offset + (0x28 * i) + 0x0c; 
     print_value(file, aux, 4); 
 
-    write(0, " ", 1);
+    write(1, " ", 1);
     //type
     if(strcompare(name, ".text", 5)){
-      write(0, "TEXT", 4);
+      write(1, "TEXT", 4);
     }
     if(strcompare(name, ".data", 5)){
-      write(0, "DATA", 4);
+      write(1, "DATA", 4);
     }
     //printf("\n");
-    write(0, "\n", 1);
+    write(1, "\n", 1);
   }
 }
 
-void identify_symbols(unsigned char* file, int e_shoff, int e_shnum, int e_shstrndx){
-  write(0, "SYMBOL TABLE:\n", 15);
+void identify_symbols(unsigned char* file, int e_shoff, int e_shnum, int e_shstrndx, int e_phnum){
+  write(1, "SYMBOL TABLE:\n", 14);
     int add_symtab, add_strtab, num_symbols; 
     //.symtab - endereços dos símbolos. 
     //.strtab” -  nomes dos símbolos
@@ -310,11 +310,13 @@ void identify_symbols(unsigned char* file, int e_shoff, int e_shnum, int e_shstr
     int a = e_shoff + ((e_shstrndx)* 0x28 + 0x10);
     int sh_offset = read_value(file, a, 4);
     char sections[10][14];
+    int sizes[10];
 
     //ir no sh_offset - encontrar infos de cada seção
       for(int i = 0; i < e_shnum; i++){
         int name_offset = sh_offset + read_value(file, e_shoff + (i* 0x28), 4); 
         char name[14];
+
         int s = 0; 
         char c = file[name_offset]; 
 
@@ -325,6 +327,7 @@ void identify_symbols(unsigned char* file, int e_shoff, int e_shnum, int e_shstr
         }
 
         strcopy(sections[i], name, s); 
+        sizes[i] = s;
 
         if(strcompare(name, ".symtab", 7)){
 
@@ -350,28 +353,34 @@ void identify_symbols(unsigned char* file, int e_shoff, int e_shnum, int e_shstr
       //printf("%d\n", a);
       int off_in_strtab = read_value(file, a, 4);
       print_value(file, a + 4, 4);
-      write(0, " ", 1);
+      write(1, " ", 1);
 
       //local ou global 
       unsigned char sh_info = file[a+12];
       sh_info = sh_info >>4; 
       if(sh_info == 0){
-        write(0, "l", 1);
+        write(1, "l ", 2);
       }
       if(sh_info == 1){
-         write(0, "g", 1);
+         write(1, "g ", 2);
       }
-      write(0, "         ", 9);
+
 
       //seção
       int section = read_value(file, a+14, 2);
-      write(0, sections[section], 14);
-      write(0, " ", 1);
+
+      if(section > e_phnum){
+        write(1, "*ABS*", 5);
+      }
+      else{
+        write(1, sections[section], sizes[section]);
+      }
+      write(1, " ", 1);
 
 
       //zeross
       print_value(file, a + 8, 4);
-      write(0, "  ", 2);
+      write(1, "  ", 2);
       //nome
       int pos = add_strtab + off_in_strtab;
       char c = file[pos];
@@ -384,13 +393,14 @@ void identify_symbols(unsigned char* file, int e_shoff, int e_shnum, int e_shstr
         c = file[pos];
         s++; 
       }
-      write(0, aux, s);
-      write(0, "\n", 1);
+      write(1, aux, s);
+      write(1, "\n", 1);
     }    
 }
 
+/*
 void disassembly_section(unsigned char* file, int e_shoff, int e_shnum, int e_shstrndxs){
-  write(0, "Disassembly of section .text:\n", 30);
+  write(1, "Disassembly of section .text:\n", 30);
   //econtrar ssection .text 
 
   //acha endereço da shtrtab
@@ -406,8 +416,8 @@ void disassembly_section(unsigned char* file, int e_shoff, int e_shnum, int e_sh
     char num[2]; 
     int_dec_to_char_dec(i, num);
     num[1] = ' ';
-    write(0, "  ", 2);
-    write(0, num, 2);
+    write(1, "  ", 2);
+    write(1, num, 2);
 
     //name
     int name_offset = sh_offset + read_value(file, e_shoff + (i* 0x28), 4); 
@@ -426,6 +436,7 @@ void disassembly_section(unsigned char* file, int e_shoff, int e_shnum, int e_sh
     }
     
   }
+  
   //
 
 
@@ -441,9 +452,9 @@ void disassembly_section(unsigned char* file, int e_shoff, int e_shnum, int e_sh
   //coluna 2:
 
   //coluna 3:
-
-  s
 }
+
+*/
 
 int main(int argc, char *argv[])
 {
@@ -476,19 +487,32 @@ int main(int argc, char *argv[])
  
   char c = argv[1][1];
 
+  int tam = 0;
+  char aux = argv[argc-1][0];
+  while(aux != '\0'){
+    tam++;
+    aux = argv[argc-1][tam];
+  }
+  
+  write(1, "\n", 1);
+  write(1, argv[argc-1], tam);
+  write(1, ": file format elf32-littleriscv\n", 32);
+  write(1, "\n", 1);
+
   //"-h" - tabela de seções 
   if(c == 'h'){
-          write(0, "Sections:\n", 11);
-          write(0, "Idx Name          Size     VMA      Type\n", 42);
+          write(1, "Sections:\n", 10);
+          write(1, "Idx Name          Size     VMA      Type\n", 41);
           identify_sections(file, e_shoff, e_shnum, e_shstrndx); 
-  }
+          write(1, "\n", 1);
+  } 
   //"-t" - tabela de símbolos 
   if(c == 't'){
-    identify_symbols(file, e_shoff, e_shnum, e_shstrndx);
+    identify_symbols(file, e_shoff, e_shnum, e_shstrndx, e_phnum);
   }
   //"-d" - o código em linguagem de montagem
   if(c == 'd'){
-    disassembly_section(file, e_shoff, e_shnum, e_shstrndx); 
+    //disassembly_section(file, e_shoff, e_shnum, e_shstrndx); 
   }
   return 0;
 }

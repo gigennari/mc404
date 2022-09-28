@@ -117,10 +117,10 @@ int numero_digitos(int dec){
 
 //devolve o número de dígito do arr em binario
 int dec_to_bin(int dec, char *binario){
-  //descorbrir quantos digitos vamos usar 
+  //descorbrir quantos digitos vamos usar  
   int n = numero_digitos(dec);
   int i = 0;
-  char aux[50];
+  char aux[1000];
   while( dec != 1 ){
     int atual = dec % 2; 
     char c =  atual + '0';
@@ -348,9 +348,7 @@ void identify_symbols(unsigned char* file, int e_shoff, int e_shnum, int e_shstr
       */
     
     for(int i = 1; i < num_symbols; i++){
-      //j é a linha da symtab
       int a = add_symtab + (16*i);
-      //printf("%d\n", a);
       int off_in_strtab = read_value(file, a, 4);
       print_value(file, a + 4, 4);
       write(1, " ", 1);
@@ -398,6 +396,24 @@ void identify_symbols(unsigned char* file, int e_shoff, int e_shnum, int e_shstr
     }    
 }
 
+void print_instruction(unsigned char *file, int offset){
+  for(int i = offset; i < offset+4; i++){
+    if(file[i] != 0){
+      char bin[32];
+      int s_bin = dec_to_bin(file[i], bin);
+      char hex[16];
+      int s_hex = bin_to_hex(bin, hex, s_bin);
+      if(s_hex == 1){
+        write(1, "0", 1);
+      }
+      write(1, hex, s_hex);
+    }
+    else{
+      write(1, "00", 2);
+    }
+     write(1, " ", 1);
+  }
+}
 
 void disassembly_section(unsigned char* file, int e_shoff, int e_shnum, int e_shstrndx, int e_phnum){
   
@@ -406,11 +422,11 @@ void disassembly_section(unsigned char* file, int e_shoff, int e_shnum, int e_sh
   //econtrar ssection .text   
   //rodar mesmo algoritmo da -t para achar todos os simbolos
 
-  int add_symtab, add_strtab, num_symbols, add_text; 
+  int add_symtab, add_strtab, num_symbols, add_text, size_text, vma_text; 
     //.symtab - endereços dos símbolos. 
     //.strtab” -  nomes dos símbolos
 
-    //vai até shtrtab encontrar seções
+    //vai até shstrtab encontrar seções
     int a = e_shoff + ((e_shstrndx)* 0x28 + 0x10);
     int sh_offset = read_value(file, a, 4);
     char sections[10][14];
@@ -433,18 +449,20 @@ void disassembly_section(unsigned char* file, int e_shoff, int e_shnum, int e_sh
         strcopy(sections[i], name, s); 
         sizes[i] = s;
 
-        if(strcompare(name, ".symtab", sizes[i])){
+        if(strcompare(name, ".symtab", 7)){
 
           add_symtab = read_value(file, e_shoff + (i* 0x28) + 0x10, 4);
           num_symbols = read_value(file, e_shoff + (i* 0x28) + 0x14, 4); 
           num_symbols = num_symbols / 16;
         }
 
-        if(strcompare(name, ".strtab", sizes[i])){
+        if(strcompare(name, ".strtab", 7)){
           add_strtab = read_value(file, e_shoff + (i* 0x28) + 0x10, 4);
         }     
-        if(strcompare(name, ".text", sizes[i])){
+        if(strcompare(name, ".text", 5)){
           add_text = read_value(file, e_shoff + (i* 0x28) + 0x10, 4);
+          size_text = read_value(file, e_shoff + (i* 0x28) + 0x14, 4);
+          vma_text = read_value(file, e_shoff + (0x28 * i) + 0x0c, 4);
         }   
       }
 
@@ -453,14 +471,19 @@ void disassembly_section(unsigned char* file, int e_shoff, int e_shnum, int e_sh
       Os 4 bytes seguintes representam o endereço do símbolo na memória do programa.
       Os últimos 8 bytes representam outras informações que não nos são úteis neste momento.
       */
+
+    char rotulos[100][30];
+    int sizes_rotulos[100];
+    int add_rotulos[100];
+
     
     for(int i = 1; i < num_symbols; i++){
-      //j é a linha da symtab
       int a = add_symtab + (16*i);
-      //printf("%d\n", a);
+
       int off_in_strtab = read_value(file, a, 4);
-      print_value(file, a + 4, 4);
-      write(1, " ", 1);
+
+      add_rotulos[i] = read_value(file, add_symtab + (16*i) + 4, 4);
+      
       //nome
       int pos = add_strtab + off_in_strtab;
       char c = file[pos];
@@ -473,15 +496,27 @@ void disassembly_section(unsigned char* file, int e_shoff, int e_shnum, int e_sh
         c = file[pos];
         s++; 
       }
-      write(1, aux, s);
-      write(1, ": \n", 3);
-      
-      
+      strcopy(rotulos[i], aux, s);  
+      sizes_rotulos[i] = s;
     }    
 
   //printar endereço e nome do simbolo
 
+  for(int i = 0; i < size_text/4; i++){ 
+    int pos = add_text + 4*i;
+    int end1 = vma_text + 4*i; 
+    //printf("end1 %d\n", end1); 
+    for(int j = 0; j < num_symbols; j++){
+      if(end1 == add_rotulos[j]){
 
+        //print_value(file, a + 4, 4);
+        write(1, rotulos, sizes_rotulos[j]);
+      }
+    }
+    
+    print_instruction(file, pos);
+    write(1, "\n", 1);
+  }
   //3 colunas 
 
   //coluna 1: 

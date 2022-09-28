@@ -1,16 +1,19 @@
 
 bin/test-35.x: file format elf32-littleriscv
 
+
 Disassembly of section .text:
-00000025 *ABS* IC:
-0001210c .data loop:
-00012108 .data magic:
-00012111 .data mc404:
-0001211c .bss monitor:
-00012117 .bss rocks:
-0001211f .bss then:
-00000023 *ABS* there:
-0000005f *ABS* x:
-00012110 .data z:
-000110d4 .text _start:
-00012115 .bss assembly:
+
+000110d4 <_start>:
+110d4: 23 24 81 04
+110d8: 13 05 15 00
+110dc: b3 85 c5 00
+110e0: 13 04 01 05
+110e4: 13 05 15 00
+110e8: 13 c5 23 02
+110ec: 03 25 84 fe
+110f0: e3 12 b5 fe
+110f4: b3 85 c5 00
+110f8: 23 26 b4 fe
+110fc: 23 26 11 02
+11100: f3 57 66 00

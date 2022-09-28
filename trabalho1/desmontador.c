@@ -15,74 +15,7 @@
 
 
 //função já recebe com endian invertido 
-/*
-void converte_4_bytes_32bits(char* bytes, char* destino){
 
-//os bytes recebidos estão em hexadecimal, converter pra bin 
-for (int i = 0; i < tam; i++){
-    //converter cada dígito para binário 
-    x = hex[i];
-    printf("num é %d\n", x);
-    //se for numero
-    if(48 <= x <= 57){
-        dec_to_bin(hex[i] - 48, 4);
-    }
-    //se for letra
-    if (65 <= x <= 71){
-        dec_to_bin(hex[i] - 47, 4);
-    }
-  }
-
-}
-
-int calcula_immediate(char* bits, int tam){
-  int total = 0, potencia = 1;
-
-  for(int i = tam-1; i >=0 ; i--){
-    int digito = bits[i] - '0';
-    total += digito * potencia; 
-    potencia = 2 * potencia;
-  }
-  return total;
-}
-
-void converte_32bits_lm(char* bits){
-
-
-//0110111 lui 
-
-//0010111 auipc 
-
-//1101111 jal
-
-//1100111 jalr 
-
-//1100011 - B - beq, bne, blt, bge, bltu, bgeu
-
-//0000011 -  I - lb, lh, lw, lbu, lhu
-
-//0100011 - s - sb, sh, sw
-
-//0010011 - I - addi, slti, sltiu, ori, ori, andi, slli
-//srli, srai
-
-//0110011 - R - add, sub, sll, slt, sltu, xor, srl, sra, or, and 
-
-//0001111  - I - fence, fence.i
-
-//1110011 - I - ecall, ebreak, cssrrw, cssrrwi, crrwi
-//csrrsi, csrrci
-}
-*/
-
-//lê até 16 bytes
-int read_value(unsigned char* arr, int offset, int size){
-  int v = 0; 
-  for(int i = 0; i < size; i++){
-    v += arr[offset+i]<<(8*i);
-  }
-  return v; 
-}
 
 void int_dec_to_char_dec(int dec, char* destino) {
     char* ptr = destino, *ptr1 = destino, tmp_char;
@@ -103,6 +36,113 @@ void int_dec_to_char_dec(int dec, char* destino) {
         *ptr1++ = tmp_char;
     }
 }
+
+
+int int_dec_to_char_dec2(int dec, char* destino) {
+    char* ptr = destino, *ptr1 = destino, tmp_char;
+    int tmp, n=0;
+
+    do {
+        tmp = dec;
+        dec /= 10;
+        *ptr++ = "0123456789abcdefghijklmnopqrstuvwxyz" [(tmp - dec * 10)];
+        n+= 1;
+    } while ( dec );
+
+    if (tmp < 0) *ptr++ = '-';
+    *ptr-- = '\0';
+    while(ptr1 < ptr) {
+        tmp_char = *ptr;
+        *ptr--= *ptr1;
+        *ptr1++ = tmp_char;
+    }
+    return n;
+}
+
+void calcula_immediate(int x){
+  int imm = x & ~0b111111111111;
+  printf("%d", imm); 
+  //char vimm[16];
+  //int s = int_dec_to_char_dec2(imm, vimm);
+  //write(1, vimm, s);
+}
+
+void identify_instruction(int x){
+
+int inst =  x & 0b1111111;
+
+  switch (inst) {
+    //0110111 lui 
+    case 0b0110111:
+        write(1, "lui", 3);
+        break;
+    //0010111 auipc 
+    case 0b0010111:
+
+        write(1, "auipc, ", 7);
+        //reg
+
+        //imm
+        calcula_immediate(x);
+        
+        
+        break;
+    
+    //1101111 jal
+    case 0b1101111:
+        
+        break;
+    //1100111 jalr 
+    case 0b1100111:
+        
+        break;
+    //1100011 - B - beq, bne, blt, bge, bltu, bgeu
+    case 0b1100011:
+        
+        break;
+    //0000011 -  I - lb, lh, lw, lbu, lhu
+    case 0b0000011:
+        
+        break;
+    //0100011 - s - sb, sh, sw
+    case 0b0100011:
+        
+        break;
+    //0010011 - I - addi, slti, sltiu, ori, ori, andi, slli, srli, srai
+    case 0b0010011:
+        
+        break;
+    //0110011 - R - add, sub, sll, slt, sltu, xor, srl, sra, or, and 
+    case 0b0110011:
+       
+        break;
+    //0001111  - I - fence, fence.i
+    case 0b0001111:
+       
+        break;
+    //1110011 - I - ecall, ebreak, cssrrw, cssrrwi, crrwi, csrrsi, csrrci
+    case 0b1110011:
+        
+        break;
+    
+  }
+
+
+
+
+}
+
+
+//lê até 16 bytes
+int read_value(unsigned char* arr, int offset, int size){
+  int v = 0; 
+  for(int i = 0; i < size; i++){
+    v += arr[offset+i]<<(8*i);
+  }
+  return v; 
+}
+
+
 
 int numero_digitos(int dec){
   int pot = 1, e = 0, total = 1;
@@ -415,10 +455,11 @@ void print_instruction(unsigned char *file, int offset){
   }
 }
 
+
+
 void disassembly_section(unsigned char* file, int e_shoff, int e_shnum, int e_shstrndx, int e_phnum){
-  
-  write(1, "Disassembly of section .text:\n", 30);
   write(1, "\n", 1);
+  write(1, "Disassembly of section .text:\n", 30);
   //econtrar ssection .text   
   //rodar mesmo algoritmo da -t para achar todos os simbolos
 
@@ -430,7 +471,7 @@ void disassembly_section(unsigned char* file, int e_shoff, int e_shnum, int e_sh
     int a = e_shoff + ((e_shstrndx)* 0x28 + 0x10);
     int sh_offset = read_value(file, a, 4);
     char sections[10][14];
-    int sizes[10];
+    //int sizes[10];
 
     //ir no sh_offset - encontrar infos de cada seção
       for(int i = 0; i < e_shnum; i++){
@@ -447,7 +488,7 @@ void disassembly_section(unsigned char* file, int e_shoff, int e_shnum, int e_sh
         }
 
         strcopy(sections[i], name, s); 
-        sizes[i] = s;
+        //sizes[i] = s;
 
         if(strcompare(name, ".symtab", 7)){
 
@@ -502,6 +543,7 @@ void disassembly_section(unsigned char* file, int e_shoff, int e_shnum, int e_sh
 
   //printar endereço e nome do simbolo
 
+
   for(int i = 0; i < size_text/4; i++){ 
     int pos = add_text + 4*i;
     int end1 = vma_text + 4*i; 
@@ -509,21 +551,41 @@ void disassembly_section(unsigned char* file, int e_shoff, int e_shnum, int e_sh
     for(int j = 0; j < num_symbols; j++){
       if(end1 == add_rotulos[j]){
 
-        //print_value(file, a + 4, 4);
-        write(1, rotulos, sizes_rotulos[j]);
+         write(1, "\n", 1);
+        
+        char bin[32];
+        int s_bin =  dec_to_bin(end1, bin);
+        char hex[16];
+        int s_hex = bin_to_hex(bin, hex, s_bin);
+
+        if(s_hex < 8){
+          for(int i = 0; i < 8-s_hex; i++){
+            write(1, "0", 1);
+          }
+        }
+        write(1, hex, s_hex);
+
+        write(1, " <", 2);
+        write(1, rotulos[j], sizes_rotulos[j]);
+        write(1, ">:\n", 3);
       }
     }
     
+
+    char bin[32];
+    int s_bin =  dec_to_bin(end1, bin);
+    char hex[8];
+    int s_hex = bin_to_hex(bin, hex, s_bin);
+    write(1, hex, s_hex);
+    write(1, ": ", 2);
     print_instruction(file, pos);
-    write(1, "\n", 1);
+   
+
+    int x = read_value(file, pos, 4);
+    identify_instruction(x); 
+
+     write(1, "\n", 1);
   }
-  //3 colunas 
-
-  //coluna 1: 
-
-  //coluna 2:
-
-  //coluna 3:
 }
 
 

@@ -18,3 +18,6 @@
 
 ### Trabalho 01 - Desmontador 
 [Instruções](https://docs.google.com/document/d/1rhp6YR4HJNRNBkUhbHZH49Xe7b_nSANGjX8QGDmn5Ns/edit)
+
+### Lab 05 - Raiz Quadrada em Assembly
+[Instruções](https://docs.google.com/document/d/1ceXzSh7qoxChIIvi-PKJO2EnEb6pGM1WwY6sdHmuH5Q/edit) 

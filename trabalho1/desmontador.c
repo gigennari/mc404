@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
 
@@ -59,12 +58,12 @@ int int_dec_to_char_dec2(int dec, char* destino) {
     return n;
 }
 
+
 void calcula_immediate(int x){
-  int imm = x & ~0b111111111111;
-  printf("%d", imm); 
-  //char vimm[16];
-  //int s = int_dec_to_char_dec2(imm, vimm);
-  //write(1, vimm, s);
+  int imm = x & ~0b111111111111; 
+  char vimm[5];
+  int s = int_dec_to_char_dec2(imm, vimm);
+  write(1, vimm, s);
 }
 
 void identify_instruction(int x){
@@ -581,8 +580,8 @@ void disassembly_section(unsigned char* file, int e_shoff, int e_shnum, int e_sh
     print_instruction(file, pos);
    
 
-    int x = read_value(file, pos, 4);
-    identify_instruction(x); 
+    //int x = read_value(file, pos, 4);
+    //identify_instruction(x); 
 
      write(1, "\n", 1);
   }

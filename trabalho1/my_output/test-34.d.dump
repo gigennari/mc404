@@ -1,3 +1,10 @@
 
 bin/test-34.x: file format elf32-littleriscv
 
+Disassembly of section .text:
+0001211d .data IC:
+00012116 .data are:
+000110d4 .text _start:
+0001210d .data magic:
+00012111 .data monitor:
+00012118 .data z:

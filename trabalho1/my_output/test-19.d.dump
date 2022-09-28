@@ -1,3 +1,18 @@
 
 bin/test-19.x: file format elf32-littleriscv
 
+Disassembly of section .text:
+0001210f .data IC:
+00000016 *ABS* assembly:
+00012117 .data discovery:
+0000004f *ABS* in:
+000110ec .text l:
+0000005d *ABS* loop:
+000110e8 .text m:
+000110e0 .text magic:
+000110dc .text monitor:
+000110e4 .text there:
+00012115 .data two:
+000110d4 .text _start:
+00012116 .data fi:
+00012112 .data then:

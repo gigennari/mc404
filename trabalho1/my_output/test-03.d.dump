@@ -1,3 +1,8 @@
 
 bin/test-03.x: file format elf32-littleriscv
 
+Disassembly of section .text:
+000110d8 .text mc404:
+000110c4 .text monitor:
+000110bc .text rocks:
+000110b4 .text _start:

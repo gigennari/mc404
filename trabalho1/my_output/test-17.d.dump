@@ -1,3 +1,9 @@
 
 bin/test-17.x: file format elf32-littleriscv
 
+Disassembly of section .text:
+00011100 .text assembly:
+0001210a .bss y:
+000110d4 .text _start:
+00012109 .bss loop:
+0001210e .bss there:

@@ -1,3 +1,8 @@
 
 bin/test-32.x: file format elf32-littleriscv
 
+Disassembly of section .text:
+000110d0 .text discovery:
+000110c0 .text unicamp:
+000110d8 .text y:
+000110b4 .text _start:

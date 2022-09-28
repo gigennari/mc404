@@ -1,3 +1,5 @@
 
 bin/test-05.x: file format elf32-littleriscv
 
+Disassembly of section .text:
+000110b4 .text _start:

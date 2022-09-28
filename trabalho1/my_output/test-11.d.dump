@@ -1,3 +1,13 @@
 
 bin/test-11.x: file format elf32-littleriscv
 
+Disassembly of section .text:
+00012105 .data discovery:
+00012107 .bss m:
+0001210f .bss rocks:
+00012114 .bss unicamp:
+000110d4 .text _start:
+000120ff .data k:
+00012117 .bss magic:
+0001210a .bss two:
+00012103 .data types:

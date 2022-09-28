@@ -1,3 +1,9 @@
 
 bin/test-25.x: file format elf32-littleriscv
 
+Disassembly of section .text:
+00011100 .text people:
+000110d4 .text _start:
+00012117 .bss are:
+0001210f .bss fi:
+00012113 .bss the:

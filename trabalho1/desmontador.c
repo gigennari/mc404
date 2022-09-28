@@ -398,49 +398,86 @@ void identify_symbols(unsigned char* file, int e_shoff, int e_shnum, int e_shstr
     }    
 }
 
-/*
-void disassembly_section(unsigned char* file, int e_shoff, int e_shnum, int e_shstrndxs){
-  write(1, "Disassembly of section .text:\n", 30);
-  //econtrar ssection .text 
 
-  //acha endereço da shtrtab
-  int a = e_shoff + ((e_shstrndxs)* 0x28 + 0x10);
-  //printf("endereço do off p shtrtab %d", a); 
-  int sh_offset = read_value(file, a, 4);
-
-  //ir no sh_offset - encontrar infos de cada seção
-
-  for(int i = 0; i < e_shnum; i++){
-    //number
-    //printf("%d", i); 
-    char num[2]; 
-    int_dec_to_char_dec(i, num);
-    num[1] = ' ';
-    write(1, "  ", 2);
-    write(1, num, 2);
-
-    //name
-    int name_offset = sh_offset + read_value(file, e_shoff + (i* 0x28), 4); 
-    char name[14];
-    int s = 0; 
-    char c;
-    c = file[name_offset]; 
-    while(c != 0){
-      name[s] = file[name_offset+s];
-      s++;
-      c = file[name_offset+s]; 
-    }
-    while(s < 14){
-      name[s] = ' ';
-      s++;
-    }
-    
-  }
+void disassembly_section(unsigned char* file, int e_shoff, int e_shnum, int e_shstrndx, int e_phnum){
   
-  //
+  write(1, "Disassembly of section .text:\n", 30);
+  write(1, "\n", 1);
+  //econtrar ssection .text   
+  //rodar mesmo algoritmo da -t para achar todos os simbolos
 
+  int add_symtab, add_strtab, num_symbols, add_text; 
+    //.symtab - endereços dos símbolos. 
+    //.strtab” -  nomes dos símbolos
 
-  //rodar mesmo algoritmo da -t para achar todos os simbolos[
+    //vai até shtrtab encontrar seções
+    int a = e_shoff + ((e_shstrndx)* 0x28 + 0x10);
+    int sh_offset = read_value(file, a, 4);
+    char sections[10][14];
+    int sizes[10];
+
+    //ir no sh_offset - encontrar infos de cada seção
+      for(int i = 0; i < e_shnum; i++){
+        int name_offset = sh_offset + read_value(file, e_shoff + (i* 0x28), 4); 
+        char name[14];
+
+        int s = 0; 
+        char c = file[name_offset]; 
+
+        while(c != 0){
+          name[s] = file[name_offset+s];
+          s++;
+          c = file[name_offset+s]; 
+        }
+
+        strcopy(sections[i], name, s); 
+        sizes[i] = s;
+
+        if(strcompare(name, ".symtab", sizes[i])){
+
+          add_symtab = read_value(file, e_shoff + (i* 0x28) + 0x10, 4);
+          num_symbols = read_value(file, e_shoff + (i* 0x28) + 0x14, 4); 
+          num_symbols = num_symbols / 16;
+        }
+
+        if(strcompare(name, ".strtab", sizes[i])){
+          add_strtab = read_value(file, e_shoff + (i* 0x28) + 0x10, 4);
+        }     
+        if(strcompare(name, ".text", sizes[i])){
+          add_text = read_value(file, e_shoff + (i* 0x28) + 0x10, 4);
+        }   
+      }
+
+      /*Na seção .symtab, para cada símbolo:
+      Os primeiros 4 bytes representam o offset do nome do símbolo na seção “.strtab”.
+      Os 4 bytes seguintes representam o endereço do símbolo na memória do programa.
+      Os últimos 8 bytes representam outras informações que não nos são úteis neste momento.
+      */
+    
+    for(int i = 1; i < num_symbols; i++){
+      //j é a linha da symtab
+      int a = add_symtab + (16*i);
+      //printf("%d\n", a);
+      int off_in_strtab = read_value(file, a, 4);
+      print_value(file, a + 4, 4);
+      write(1, " ", 1);
+      //nome
+      int pos = add_strtab + off_in_strtab;
+      char c = file[pos];
+      char aux[30];
+      int s = 0; 
+      
+      while(c != 0){
+        aux[s] = c;
+        pos++;
+        c = file[pos];
+        s++; 
+      }
+      write(1, aux, s);
+      write(1, ": \n", 3);
+      
+      
+    }    
 
   //printar endereço e nome do simbolo
 
@@ -454,7 +491,7 @@ void disassembly_section(unsigned char* file, int e_shoff, int e_shnum, int e_sh
   //coluna 3:
 }
 
-*/
+
 
 int main(int argc, char *argv[])
 {
@@ -473,16 +510,13 @@ int main(int argc, char *argv[])
   
   //e_shoff é endereço do começo da section header table.
   e_shoff = read_value(file, ADD_E_SHOFF, SIZE_E_SHOFF);
-  //printf("valor de e_shoff deu %d\n", e_shoff); 
   //e_shnum  number of entries in the section header table.
   e_shnum = read_value(file, ADD_E_ESHNUM, SIZE_E_ESHNUM);
-  //printf("valor de e_shnum deu %d\n", e_shnum); 
   //e_shstrndx index of the section header table entry that contains the section names - número da seção que é a shtrtab
   e_shstrndx = read_value(file, ADD_E_SHSTRNDX, SIZE_E_SHSTRNDX);
-  //printf("valor de e_shstrndx deu %d\n", e_shstrndx); 
   //e_phnum number of entries in the program header table
   e_phnum = read_value(file, ADD_E_PHNUM, SIZE_E_PHNUM);
-  //printf("%d\n", e_phnum); 
+  
   //lê arquivo inteiro
  
   char c = argv[1][1];
@@ -512,7 +546,8 @@ int main(int argc, char *argv[])
   }
   //"-d" - o código em linguagem de montagem
   if(c == 'd'){
-    //disassembly_section(file, e_shoff, e_shnum, e_shstrndx); 
+    disassembly_section(file, e_shoff, e_shnum, e_shstrndx, e_phnum); 
   }
+
   return 0;
 }

@@ -1,3 +1,12 @@
 
 bin/test-21.x: file format elf32-littleriscv
 
+Disassembly of section .text:
+0000005c *ABS* k:
+00000012 *ABS* mc404:
+00000016 *ABS* of:
+00012109 .data the:
+00012105 .data there:
+000110d8 .text types:
+00012106 .data unicamp:
+000110d4 .text _start:

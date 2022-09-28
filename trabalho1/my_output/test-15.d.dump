@@ -1,3 +1,14 @@
 
 bin/test-15.x: file format elf32-littleriscv
 
+Disassembly of section .text:
+0001211e .bss assembly:
+00012110 .bss mc404:
+000110d8 .text people:
+000110f8 .text rocks:
+00011104 .text the:
+0001211a .bss two:
+00011108 .text y:
+000110d4 .text _start:
+00012116 .bss l:
+00012112 .bss loop:

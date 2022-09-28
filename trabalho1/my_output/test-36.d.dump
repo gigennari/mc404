@@ -1,3 +1,19 @@
 
 bin/test-36.x: file format elf32-littleriscv
 
+Disassembly of section .text:
+000110f8 .text IC:
+00000024 *ABS* are:
+00012112 .data l:
+0001210e .data of:
+00000028 *ABS* rocks:
+000110ec .text the:
+00012124 .bss there:
+00012119 .data unicamp:
+00000038 *ABS* x:
+000110d4 .text _start:
+0001211f .bss assembly:
+0001211a .bss mc404:
+00012129 .bss monitor:
+00012117 .data y:
+0001210b .data z:

@@ -1,3 +1,6 @@
 
 bin/test-30.x: file format elf32-littleriscv
 
+Disassembly of section .text:
+000110e8 .text IC:
+000110b4 .text _start:

@@ -1,3 +1,14 @@
 
 bin/test-04.x: file format elf32-littleriscv
 
+Disassembly of section .text:
+00012111 .bss fi:
+0001210e .bss k:
+00012109 .data loop:
+00012105 .data monitor:
+00012107 .data then:
+0001211b .bss x:
+000110d4 .text _start:
+00012101 .data in:
+00012116 .bss mc404:
+00012112 .bss of:

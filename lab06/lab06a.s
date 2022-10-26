@@ -81,9 +81,7 @@ percorre_matriz:
 
     li a0, 0 #largura 
     li a1, 0 #altura 
-   
     mv t0, s8
-    
     mv t1, s7
 
     le_linha:

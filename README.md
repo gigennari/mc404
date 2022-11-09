@@ -21,3 +21,12 @@
 
 ### Lab 05 - Raiz Quadrada em Assembly
 [Instruções](https://docs.google.com/document/d/1ceXzSh7qoxChIIvi-PKJO2EnEb6pGM1WwY6sdHmuH5Q/edit) 
+
+### Lab 06a - Imagem em periférico em Assembly
+[Instruções](https://docs.google.com/document/d/1R27Irm3q0AftJg8gnnUNvylr7Vh_laNGKKyC0SBztlc/edit?usp=sharing) 
+
+### Lab 06b - Filtro Imagem em periférico em Assembly
+[Instruções](https://docs.google.com/document/d/1EAqgR4b-6TMzp7uG8o3tqTPoZxpbaX5bKWZ73puu6xg/edit?usp=sharing) 
+
+### Lab 07 - Biblioteca em Assembly
+[Instruções](https://docs.google.com/document/d/141MVx-1T9MYSmaiacEsREIWL_ps2dEEFNUV-tTboogg/edit) 

@@ -30,3 +30,20 @@
 
 ### Lab 07 - Biblioteca em Assembly
 [Instruções](https://docs.google.com/document/d/141MVx-1T9MYSmaiacEsREIWL_ps2dEEFNUV-tTboogg/edit) 
+
+
+### Lab 08 - Carro 1
+[Instruções](https://docs.google.com/document/d/1s_eD80mIzSqLzXiBgeKqJLuioEEqHhomyhs_Hyj1ykg/edit#heading=h.4u0dbxchdmzn) 
+
+
+### Lab 09 - Música
+[Instruções](https://docs.google.com/document/d/1jhuYafDz008YNrZJLVueBlIhGO7DdKBByxWiFAwAKP0/edit?usp=sharing) 
+
+
+### Lab 10 - Carro 2
+[Instruções](https://docs.google.com/document/d/1XSfAqM4sII2Hx3oRfffv-j1KceYnHwB4Y8_MRU4LuuE/edit?usp=sharing) 
+
+
+### Trabalho 2 
+[Instruções](https://docs.google.com/document/d/1CcBqpo8JKTQuL8WvAc9XXBm6kNGOLfrSkvp2pT0bMMg/edit?usp=sharing) 
+

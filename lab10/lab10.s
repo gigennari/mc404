@@ -113,7 +113,7 @@ Syscall_set_handbreak:
 Sycall_read_sensors:
 #a0 = endereço de um vetor de 256 elementos q armazena nos lidos 
    li t0, 0xffff0100
-    li a7, 12  
+    
     ret 
 
 #pega posicao  
